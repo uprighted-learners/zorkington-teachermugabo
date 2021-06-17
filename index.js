@@ -105,5 +105,5 @@ async function start() {
   }
 
   start()
-  // process.exit();
+  // process.exit(); -- not sure why this exists!
 }
