@@ -25,11 +25,11 @@ class Location {
 // create locations with mapped allowable transitions
 let mainEntrace = new Location(
   'main entrance',
-  'In front of you are the doors to Hannafords. Grab a cart from the cart room'
+  'In front of you are the doors to Hannafords. Grab a cart from the cart room',
   ['cart room'])
 let cartRoom = new Location(
   'cart room',
-  'See the large carts on your right and small carts to your left. We\'re also hiring! Baskets are by the front produce'
+  'See the large carts on your right and small carts to your left. We\'re also hiring! Baskets are by the front produce',
   ['front produce'])
 let frontProduce = new Location(
   'front produce',
