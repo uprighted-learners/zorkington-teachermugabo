@@ -81,10 +81,17 @@ let backProduce = new Location(
 const locationLookUp = {
   "main entrance" : mainEntrace,
   "cart room" : cartRoom,
+  "carts": cartRoom,
   "front produce" : frontProduce,
+  "front" : frontProduce,
   "back produce" : backProduce,
+  "back" : backProduce,
   "left produce" : leftProduce,
+  "left" : leftProduce,
+  "left side" : leftProduce,
   "right produce" : rightProduce,
+  "right" : rightProduce,
+  "right side" : rightProduce,
   "checkout" : checkout
 }
 
@@ -107,14 +114,16 @@ move right
 take [object]
 */
 
-// set current location
-let currentLocation = "main entrance"
-
+let player = {
+  // set player's current location
+  name: "Bob",
+  currentLocation: "main entrance"
+}
 // logic to move b/t locations
 
 
 // print out current place's description
-console.log(locationLookUp[currentLocation].getDescription())
+console.log(locationLookUp[player.currentLocation].getDescription())
 
 
 start();
@@ -144,12 +153,12 @@ Where to next?
   // user can look around :-) 
   // TODO this will turn into action=look, target=around -- maybe
   else if (answer == 'look around') {
-    console.log(locationLookUp[currentLocation].getDescription())
+    console.log(locationLookUp[player.currentLocation].getDescription())
   } 
   // takes next location
-  else if (locationLookUp[currentLocation].canGo(answer)) {
-    console.log(`Good guess! You left ${currentLocation} and are now in ${answer}`)
-    currentLocation = answer
+  else if (locationLookUp[player.currentLocation].canGo(answer)) {
+    console.log(`Good guess! You left ${player.currentLocation} and are now in ${answer}`)
+    player.currentLocation = answer
   } 
   // catch invalid input
   else {
