@@ -18,8 +18,10 @@ class Location {
     this.inventory = inventory
   }
 
+  // returns description of location - convenience function
   lookAround() { return this.getDescription() }
 
+  // returns description of location
   getDescription() { return this.description }
 
   canGo(location) {
@@ -38,13 +40,15 @@ let mainEntrace = new Location(
   ['cart room'])
 let cartRoom = new Location(
   'cart room',
-  `See the large carts on your right and small carts to your left.
+  `
+  See the large carts on your right and small carts to your left.
   We're also hiring! Baskets are by the front produce`,
   ['front produce'],
   ['big carts','small carts','hiring'])
 let frontProduce = new Location(
   'front produce',
-  `You're inside the store. Yay! In front of you are some local tomatoes,
+  `
+  You're inside the store. Yay! In front of you are some local tomatoes,
   and local strawberries.Yum!
   To your right are some green stuff you can't quite make out.
   And to your right is a smorgasbord of berries. This was damn place is a smorgasbord!`,
@@ -52,19 +56,25 @@ let frontProduce = new Location(
   ['strawberries','tomatoes'])
 let backProduce = new Location(
   'back produce',
-  '',
+  ``,
   ['front produce','right produce','left produce'])
-let leftProduce = new Location(
+
+  // TODO add description
+  let leftProduce = new Location(
   'left produce',
-  '',
+  ``,
   ['checkout','back produce','front produce'])
-let rightProduce = new Location(
+
+  // TODO add description
+  let rightProduce = new Location(
   'right produce',
-  '',
+  ``,
   ['back produce','front produce'])
-let checkout = new Location(
+  
+  // TODO add description
+  let checkout = new Location(
   'checkout',
-  '',
+  ``,
   ['left produce'])
 
 // locations & location instance lookupTable
@@ -78,8 +88,18 @@ const locationLookUp = {
   "checkout" : checkout
 }
 
-// actions
-/*
+// 
+
+// actions 
+// TODO this will be simpler -- though
+/* 
+return [item]
+take [item]
+go to [location]
+pay
+leave / exit
+
+// Possible future extensions
 move forward
 move back
 move left
@@ -110,19 +130,30 @@ Where to next?
 
   let answer = await ask(prompt);
 
-  // if answer is an action -> take action
-  // else if answer is an item
+  // if there was an input, clean it up
+  if(answer) answer = answer.trim().toLowerCase()
 
-  if(answer == 'leave') {
+  // TODO organize my user input process -- require action/target format
+  // pull from wk2/escaperoom.js -- workshop with Olivia
+
+  // allow user leave
+  if(answer === 'leave' || answer === 'exit') {
     console.log('bye')
     process.exit(0)
-  } else if (answer == 'look around') {
+  } 
+  // user can look around :-) 
+  // TODO this will turn into action=look, target=around -- maybe
+  else if (answer == 'look around') {
     console.log(locationLookUp[currentLocation].getDescription())
-  } else if (locationLookUp[currentLocation].canGo(answer)) {
+  } 
+  // takes next location
+  else if (locationLookUp[currentLocation].canGo(answer)) {
     console.log(`Good guess! You left ${currentLocation} and are now in ${answer}`)
     currentLocation = answer
-  } else {
-    console.log('Nope! Try again.')
+  } 
+  // catch invalid input
+  else {
+    console.log(`Don't know how to do that. Study the clues closer, keep it simply & try again`)
   }
 
   start()
