@@ -49,32 +49,35 @@ let frontProduce = new Location(
   'front produce',
   `
   You're inside the store. Yay! In front of you are some local tomatoes,
-  and local strawberries.Yum!
-  To your right are some green stuff you can't quite make out.
-  And to your right is a smorgasbord of berries. This was damn place is a smorgasbord!`,
+  and local strawberries. Yum! To your right are some green stuff you 
+  can't quite make out. And to your right is a smorgasbord of fruit. 
+  This was damn place is a smorgasbord!`,
   ['cart room','back produce', 'left produce', 'right produce'],
   ['strawberries','tomatoes'])
 let backProduce = new Location(
   'back produce',
-  ``,
+  `You're in the back produce -- looking at heaps of avocadoes, and potatoes`,
   ['front produce','right produce','left produce'])
 
   // TODO add description
   let leftProduce = new Location(
   'left produce',
-  ``,
+  `
+  You're in the left produce -- tons of fruit!
+  The usual suspects are here including some funky ones.
+  Yes, hidden behind the passion fruit, are the mangoes and plums.`,
   ['checkout','back produce','front produce'])
 
   // TODO add description
   let rightProduce = new Location(
   'right produce',
-  ``,
+  `You're in the right produce -- we have bell peppers and corn here.`,
   ['back produce','front produce'])
   
   // TODO add description
   let checkout = new Location(
   'checkout',
-  ``,
+  `So you're ready to check out. Go everything on your list?`,
   ['left produce'])
 
 // locations & location instance lookupTable
@@ -128,7 +131,9 @@ take [object]
 let player = {
   // set player's current location
   name: "Bob",
-  currentLocation: "main entrance"
+  currentLocation: "main entrance",
+  shoppingList: [],
+  cart: []
 }
 // logic to move b/t locations
 
@@ -179,5 +184,5 @@ Where to next?
   }
 
   start()
-  // process.exit(); -- not sure why this exists!
+  // process.exit(); -- not sure why this exits!
 }
