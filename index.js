@@ -78,25 +78,36 @@ let backProduce = new Location(
   ['left produce'])
 
 // locations & location instance lookupTable
+// TODO implementation of "forgiving" location names that doesn't
+//      require adding all these possibilities into the Location 
+//      class instance's adjacent array.
 const locationLookUp = {
   "main entrance" : mainEntrace,
   "cart room" : cartRoom,
-  "carts": cartRoom,
+  //"carts": cartRoom,
   "front produce" : frontProduce,
-  "front" : frontProduce,
+  //"front" : frontProduce,
   "back produce" : backProduce,
-  "back" : backProduce,
+  //"back" : backProduce,
   "left produce" : leftProduce,
-  "left" : leftProduce,
-  "left side" : leftProduce,
+  //"left" : leftProduce,
+  //"left side" : leftProduce,
   "right produce" : rightProduce,
-  "right" : rightProduce,
-  "right side" : rightProduce,
+  //"right" : rightProduce,
+  //"right side" : rightProduce,
   "checkout" : checkout
 }
 
-// 
+// TODO add items
+// items
+class Item {
+  constructor(name, description = '', takeable = true, available = true) {
+    this.name = name
+  }
+}
 
+
+// TODO define actions
 // actions 
 // TODO this will be simpler -- though
 /* 
@@ -159,10 +170,12 @@ Where to next?
   else if (locationLookUp[player.currentLocation].canGo(answer)) {
     console.log(`Good guess! You left ${player.currentLocation} and are now in ${answer}`)
     player.currentLocation = answer
+
+    // TODO implement can't go from here to there -- if we got a valid location
   } 
   // catch invalid input
   else {
-    console.log(`Don't know how to do that. Study the clues closer, keep it simply & try again`)
+    console.log(`Don't know how to do that. Study the clues closer, keep it simple & try again`)
   }
 
   start()
