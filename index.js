@@ -104,8 +104,12 @@ const locationLookUp = {
 // TODO add items
 // items
 class Item {
-  constructor(name, description = '', takeable = true, available = true) {
+  constructor(name, description = '', takeable = true, available = true, fresh = false) {
     this.name = name
+  }
+
+  examine() {
+
   }
 }
 
@@ -170,7 +174,7 @@ Where to next?
   // TODO this will turn into action=look, target=around -- maybe
   else if (answer == 'look around') {
     console.log(locationLookUp[player.currentLocation].getDescription())
-  } 
+  }
   // takes next location
   else if (locationLookUp[player.currentLocation].canGo(answer)) {
     console.log(`Good guess! You left ${player.currentLocation} and are now in ${answer}`)
