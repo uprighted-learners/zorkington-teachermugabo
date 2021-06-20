@@ -30,7 +30,6 @@ class Location {
 }
 
 // create locations with mapped allowable transitions
-// TODO #0 - add inventory to all locations
 let mainEntrace = new Location(
   'main entrance',
   `
@@ -57,8 +56,12 @@ let frontProduce = new Location(
   ['strawberries','tomatoes'])
 let backProduce = new Location(
   'back produce',
-  `You're in the back produce -- looking at heaps of avocadoes, and potatoes`,
-  ['front produce','right produce','left produce'])
+  `
+  You're in the back produce -- looking at heaps of single avocadoes, and potatoes.
+  There's also big juicy tomatoes, and peppers. There are also bags of onions and
+  avocadoes as well.`,
+  ['front produce','right produce','left produce'],
+  ['avodaoes',' potatoes','big juicy tomatoes','peppers','onions','bag of onions','bag of avocadoes'])
 
   // TODO add description
   let leftProduce = new Location(
@@ -66,20 +69,24 @@ let backProduce = new Location(
   `
   You're in the left produce -- tons of fruit!
   The usual suspects are here including some funky ones.
-  Yes, hidden behind the passion fruit, are the mangoes and plums.`,
-  ['checkout','back produce','front produce'])
+  Yes, hidden behind the passion fruit, are the mangoes and plums.
+  There are also a back of different berries! Take your pick!`,
+  ['checkout','back produce','front produce'],
+  ['passion fruit', 'mangoes', 'plums','blackberries', 'blueberries','strawberries'])
 
   // TODO add description
   let rightProduce = new Location(
   'right produce',
   `You're in the right produce -- we have bell peppers and corn here.`,
-  ['back produce','front produce'])
+  ['back produce','front produce'],
+  ['corn','green bell peppers','yellow bell peppers','red bell peppers'])
   
   // TODO add description
   let checkout = new Location(
   'checkout',
   `So you're ready to check out. Go everything on your list?`,
-  ['left produce'])
+  ['left produce']
+  ['receipt'])
 
 // locations & location instance lookupTable
 // TODO implementation of "forgiving" location names that doesn't
