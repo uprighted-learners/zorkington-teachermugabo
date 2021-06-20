@@ -114,17 +114,9 @@ class Item {
 }
 
 
-// TODO define actions
-// actions 
-// TODO this will be simpler -- though
-/* 
-return [item]
-take [item]
-go to [location]
-pay
-leave / exit
-
 // Possible future extensions
+// 
+/*
 move forward
 move back
 move left
@@ -137,6 +129,8 @@ let player = {
   name: "Bob",
   currentLocation: "main entrance",
   shoppingList: [],
+  // allowed actions
+  actions: ["go","take","return","pay","leave","look"],
   cart: []
 }
 // logic to move b/t locations
@@ -152,41 +146,70 @@ async function start() {
 
   // user prompt
   const prompt = 
+
 `
-Where to next?
+What to do next? >_`
 
->_`
-
+  // prompt user
   let answer = await ask(prompt);
+  // console.log(answer, 'line 174');
 
-  // if there was an input, clean it up
-  if(answer) answer = answer.trim().toLowerCase()
+  // quick & dirty sanitizing
+  let inputArray = answer.trim().toLowerCase().split(' ')
 
-  // TODO organize my user input process -- require action/target format
-  // pull from wk2/escaperoom.js -- workshop with Olivia
+  let action = ''
+  let target = ''
 
-  // allow user leave
-  if(answer === 'leave' || answer === 'exit') {
-    console.log('bye')
-    process.exit(0)
+  // process action
+  // TODO re-add ability to process "go to"
+  action = inputArray[0] // first word
+  target = inputArray.slice(1).join(' ') // the rest
+
+  // execute user's wishes
+  // if action isn't known, let user know
+  if(!player.actions.includes(action)) {
+    console.log(
+    `Dear Shopper. You're limited to a few commands. 
+      You can go, take, return, etc..stuff
+      Plz, try again.`)
   } 
-  // user can look around :-) 
-  // TODO this will turn into action=look, target=around -- maybe
-  else if (answer == 'look around') {
-    console.log(locationLookUp[player.currentLocation].getDescription())
-  }
-  // takes next location
-  else if (locationLookUp[player.currentLocation].canGo(answer)) {
-    console.log(`Good guess! You left ${player.currentLocation} and are now in ${answer}`)
-    player.currentLocation = answer
-
-    // TODO implement can't go from here to there -- if we got a valid location
-  } 
-  // catch invalid input
+  // if action is known, let user know as well
   else {
-    console.log(`Don't know how to do that. Study the clues closer, keep it simple & try again`)
+    console.log(`Ah, so you want want to ${action} ${target}.`)
+
+    // if look - assume "look around" - get current place's location & look out! 
+    if ( action === 'look') {
+      console.log(locationLookUp[player.currentLocation].lookAround())
+    }
+    // if "go", expect/check target is location, 
+    else if( action === "go") {
+      // check/handle if valid location
+      if(Object.keys(locationLookUp).includes(target)) {
+        // check/handle if allowed transition
+        if (locationLookUp[player.currentLocation].canGo(target)) {
+          console.log(`Good guess! You left ${player.currentLocation} and are now in ${target}`)
+          player.currentLocation = target
+        } else {
+          // TODO implement can't go from here to there -- if we got a valid location
+          console.log(`Can't go from ${player.currentLocation} to ${target}. Clues, shopper, clues.`)
+        }
+      } else {
+        // wrong location -- help user with location
+        console.log(`Hmmm, don't know ${target}. Look around!`)
+      }   
+    }
+    // if "take", expect take [item]
+    // if "return" expect target = [item], check
+    // if "pay", say thanks - you're all say
+    else if (action === 'pay') console.log("Thanks! You're all set. You can leave now.")
+    // if "leave" say bye
+    else if (action === 'leave') { 
+      console.log("bye")
+      process.exit(0)
+    }
+
   }
 
   start()
-  // process.exit(); -- not sure why this exits!
+  // process.exit(); -- TODO understand how/when this line executes
 }
