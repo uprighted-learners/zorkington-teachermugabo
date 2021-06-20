@@ -187,7 +187,8 @@ What to do next? >_`
   if(!player.actions.includes(action)) {
     console.log(
     `Dear Shopper. You're limited to a few commands. 
-      You can go, take, return, etc..stuff
+      You can go to [place], take [item], drop [item], etc...
+      Oh, You can even examine the item!
       Plz, try again.`)
   } 
   // if action is known, let user know as well
