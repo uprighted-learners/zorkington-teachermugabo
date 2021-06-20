@@ -84,9 +84,13 @@ let backProduce = new Location(
 // TODO implementation of "forgiving" location names that doesn't
 //      require adding all these possibilities into the Location 
 //      class instance's adjacent array.
+//      ISSUE: currently, adding locations here isn't enough, I need
+//      to update locations in each Location class instance as well.
+//      seems like a bad/poor pattern! 
 const locationLookUp = {
   "main entrance" : mainEntrace,
   "cart room" : cartRoom,
+  //"cartroom" : cartRoom,
   //"carts": cartRoom,
   "front produce" : frontProduce,
   //"front" : frontProduce,
@@ -130,7 +134,7 @@ let player = {
   currentLocation: "main entrance",
   shoppingList: [],
   // allowed actions
-  actions: ["go","take","return","pay","leave","look"],
+  actions: [ "go", "go to","take","return","pay","leave","look"],
   cart: []
 }
 // logic to move b/t locations
@@ -161,9 +165,17 @@ What to do next? >_`
   let target = ''
 
   // process action
-  // TODO re-add ability to process "go to"
+  // + ability to process "go to"
+  // TODO replace this logic with user input lookupTable 
   action = inputArray[0] // first word
-  target = inputArray.slice(1).join(' ') // the rest
+  if ( action === "go" && inputArray[1] === "to") {
+    action = "go to"
+    target = inputArray.slice(2).join(' ') // the rest
+  } 
+  // if action is not "go to", expect single word for command
+  else {
+    target = inputArray.slice(1).join(' ') // the rest
+  }
 
   // execute user's wishes
   // if action isn't known, let user know
@@ -182,7 +194,7 @@ What to do next? >_`
       console.log(locationLookUp[player.currentLocation].lookAround())
     }
     // if "go", expect/check target is location, 
-    else if( action === "go") {
+    else if( action === "go to" || action === "go") {
       // check/handle if valid location
       if(Object.keys(locationLookUp).includes(target)) {
         // check/handle if allowed transition
