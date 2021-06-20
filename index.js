@@ -86,7 +86,7 @@ let backProduce = new Location(
 //      class instance's adjacent array.
 //      ISSUE: currently, adding locations here isn't enough, I need
 //      to update locations in each Location class instance as well.
-//      seems like a bad/poor pattern! 
+//      seems like a bad/poor pattern!
 const locationLookUp = {
   "main entrance" : mainEntrace,
   "cart room" : cartRoom,
@@ -111,12 +111,16 @@ class Item {
   constructor(name, description = '', takeable = true, available = true, fresh = false) {
     this.name = name
   }
-
+  
+  // TODO #2 -- decide on actions that can be taken on these items
   examine() {
 
   }
 }
 
+// TODO #1 -- 
+//  create items (use locations descriptions & pictures)
+//  decide on properties of the items -- takeable and such
 
 // Possible future extensions
 // 
@@ -166,12 +170,12 @@ What to do next? >_`
 
   // process action
   // + ability to process "go to"
-  // TODO replace this logic with user input lookupTable 
+  // TODO replace this logic with user input lookupTable
   action = inputArray[0] // first word
   if ( action === "go" && inputArray[1] === "to") {
     action = "go to"
     target = inputArray.slice(2).join(' ') // the rest
-  } 
+  }
   // if action is not "go to", expect single word for command
   else {
     target = inputArray.slice(1).join(' ') // the rest
@@ -210,9 +214,9 @@ What to do next? >_`
         console.log(`Hmmm, don't know ${target}. Look around!`)
       }   
     }
-    // if "take", expect take [item]
-    // if "return" expect target = [item], check
-    // if "pay", say thanks - you're all say
+    // TODO #3 if "take", expect take [item]
+    // TODO #4 if "return" expect target = [item], check
+    // TODO #5 if "pay", say thanks - you're all say
     else if (action === 'pay') console.log("Thanks! You're all set. You can leave now.")
     // if "leave" say bye
     else if (action === 'leave') { 
