@@ -30,6 +30,7 @@ class Location {
 }
 
 // create locations with mapped allowable transitions
+// TODO #0 - add inventory to all locations
 let mainEntrace = new Location(
   'main entrance',
   `
