@@ -33,10 +33,11 @@ class Location {
 let mainEntrace = new Location(
   'main entrance',
   `
-  Welcome to Hannaford! You are at the main entrance.
-  In front of you are the doors to Hannafords.
-  Next up is the cart room. You'll need one.
-  If you need help along the way, remember to just look around.`,
+  Hello Shopper! In case you've forgotten, you've been hired as a shopper 
+  for our dear dear customers at Hannafords. In the cart room, you'll find the
+  your shopping list on the hiring stand. You are currently at the main entrance.
+  In front of you are the doors to Hannafords.  Next up is the cart room. 
+  You'll need one. If you need help along the way, remember to just look around.`,
   ['cart room'])
 let cartRoom = new Location(
   'cart room',
@@ -44,7 +45,7 @@ let cartRoom = new Location(
   See the large carts on your right and small carts to your left.
   We're also hiring! Baskets are by the front produce`,
   ['front produce'],
-  ['big carts','small carts','hiring'])
+  ['big carts','small carts','shopping list'])
 let frontProduce = new Location(
   'front produce',
   `
@@ -114,17 +115,23 @@ const locationLookUp = {
 }
 
 // TODO add items
-// items
+// items - these will simply be shopping list, cart
 class Item {
-  constructor(name, description = '', takeable = true, available = true, fresh = false) {
+  constructor(name, description = '', contents = [], available = false) {
     this.name = name
-  }
-  
-  // TODO #2 -- decide on actions that can be taken on these items
-  examine() {
-
+    this.contents = contents
+    this.available = available
   }
 }
+
+// Method to create the shopper's list 
+let createShoppingList = () => {
+  // TODO #0 randomly generate a list of 5 items to buy
+  console.log(`haven't created shopping list creation yet...`)
+  return []
+}
+
+let shoppingList = createShoppingList();
 
 // TODO #1 -- 
 //  create items (use locations descriptions & pictures)
@@ -144,10 +151,10 @@ let player = {
   // set player's current location
   name: "Bob",
   currentLocation: "main entrance",
-  shoppingList: [],
   // allowed actions
   actions: [ "go", "go to","take","return","pay","leave","look"],
-  cart: []
+  cart: [],
+  hasReceipt: false
 }
 // logic to move b/t locations
 
@@ -195,7 +202,6 @@ What to do next? >_`
     console.log(
     `Dear Shopper. You're limited to a few commands. 
       You can go to [place], take [item], drop [item], etc...
-      Oh, You can even examine the item!
       Plz, try again.`)
   } 
   // if action is known, let user know as well
