@@ -1,4 +1,6 @@
+const _ = require('underscore');
 const readline = require('readline');
+
 const { createBrotliCompress } = require('zlib');
 const readlineInterface = readline.createInterface(process.stdin, process.stdout);
 
@@ -11,11 +13,13 @@ function ask(questionText) {
 // template for locations 
 // TODO change them to departments
 class Location {
-  constructor(name, description = '', adjacent = [], inventory = []) {
+  constructor(name, description = '', adjacent = [], inventory = [], locked = false) {
     this.name = name
     this.description = description
     this.adjacent = adjacent
     this.inventory = inventory
+    this.locked = locked
+
   }
 
   // returns description of location - convenience function
@@ -115,12 +119,14 @@ const locationLookUp = {
 }
 
 // TODO add items
-// items - these will simply be shopping list, cart
+// items - these will simply be shopping list, cart (could extend to cash register)
+// TODO - what items will be untakable? 
 class Item {
-  constructor(name, description = '', contents = [], available = false) {
+  constructor(name, description = '', contents = [], available = false, takeable = false) {
     this.name = name
     this.contents = contents
     this.available = available
+    this.takeable = takeable
   }
 }
 
@@ -156,8 +162,6 @@ let player = {
   cart: [],
   hasReceipt: false
 }
-// logic to move b/t locations
-
 
 // print out current place's description
 console.log(locationLookUp[player.currentLocation].getDescription())
@@ -187,7 +191,7 @@ What to do next? >_`
   // + ability to process "go to"
   // TODO replace this logic with user input lookupTable
   action = inputArray[0] // first word
-  if ( action === "go" && inputArray[1] === "to") {
+  if ( action === "go" && inputArray[1] === "to" ) {
     action = "go to"
     target = inputArray.slice(2).join(' ') // the rest
   }
@@ -198,7 +202,7 @@ What to do next? >_`
 
   // execute user's wishes
   // if action isn't known, let user know
-  if(!player.actions.includes(action)) {
+  if ( !player.actions.includes(action) ) {
     console.log(
     `Dear Shopper. You're limited to a few commands. 
       You can go to [place], take [item], drop [item], etc...
@@ -209,14 +213,20 @@ What to do next? >_`
     console.log(`Ah, so you want want to ${action} ${target}.`)
 
     // if look - assume "look around" - get current place's location & look out! 
-    if ( action === 'look') {
+    if ( action === 'look' ) {
+      // TODO explore using text wrapping - currently using `` and formatting as desired.
+      // https://stackoverflow.com/questions/14484787/wrap-text-in-javascript
       console.log(locationLookUp[player.currentLocation].lookAround())
     }
+    // ===     logic to move b/t locations ===== //
     // if "go", expect/check target is location, 
-    else if( action === "go to" || action === "go") {
+    else if ( action === "go to" || action === "go" ) {
       // check/handle if valid location
       if(Object.keys(locationLookUp).includes(target)) {
         // check/handle if allowed transition
+        // TODO story -- when leaving main entrance to cart room, main entrance locks!
+        //               can't leave w/o the full shopping leave.  
+        // TODO story -- when shopper returns to main entrance w/ everything, unlock it! 
         if (locationLookUp[player.currentLocation].canGo(target)) {
           console.log(`Good guess! You left ${player.currentLocation} and are now in ${target}`)
           player.currentLocation = target
@@ -229,12 +239,28 @@ What to do next? >_`
         console.log(`Hmmm, don't know ${target}. Look around!`)
       }   
     }
-    // TODO #3 if "take", expect take [item]
+    // TODO #3 implement "take" actions, expect take [item]
+    else if ( action == "take" ) {
+      // non-produce items  -- shopping list, cart, inventory
+      // TODO #3b add take inventory (as item) => list what user has
+
+      // taking a produce item
+
+    }
     // TODO #4 if "return" expect target = [item], check
-    // TODO #5 if "pay", say thanks - you're all say
-    else if (action === 'pay') console.log("Thanks! You're all set. You can leave now.")
+    else if ( action === 'drop') {
+
+    }
+    // TODO #5 if "pay", say thanks - you're all set
+    else if ( action === 'pay') console.log(
+      `
+      Thanks for the cashless exchange! You're all set. 
+      You can leave now. You remember where you came from, don't you?`)
     // if "leave" say bye
     else if (action === 'leave') { 
+      // TODO - Have they opened the main entrance? 
+      //        If not, give them a hard time and release them.
+      
       console.log("bye")
       process.exit(0)
     }
