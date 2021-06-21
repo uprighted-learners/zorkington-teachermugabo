@@ -131,13 +131,22 @@ class Item {
 }
 
 // Method to create the shopper's list 
+const SHOPPING_LIST_LENGTH = 5
+
 let createShoppingList = () => {
   // TODO #0 randomly generate a list of 5 items to buy
-  console.log(`haven't created shopping list creation yet...`)
-  return []
+  // merge inventories from all the produce locations
+  let produceInventory = 
+    frontProduce.inventory
+    .concat(backProduce.inventory)
+    .concat(leftProduce.inventory)
+    .concat(rightProduce.inventory)
+
+  return _.take(_.shuffle(produceInventory), SHOPPING_LIST_LENGTH)
 }
 
 let shoppingList = createShoppingList();
+// console.log(shoppingList) -> five random items to shop for.
 
 // TODO #1 -- 
 //  create items (use locations descriptions & pictures)
@@ -247,7 +256,7 @@ What to do next? >_`
       // taking a produce item
 
     }
-    // TODO #4 if "return" expect target = [item], check
+    // TODO #4 if "drop" expect target = [item], check
     else if ( action === 'drop') {
 
     }
@@ -260,7 +269,7 @@ What to do next? >_`
     else if (action === 'leave') { 
       // TODO - Have they opened the main entrance? 
       //        If not, give them a hard time and release them.
-      
+
       console.log("bye")
       process.exit(0)
     }
