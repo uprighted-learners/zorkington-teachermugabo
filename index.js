@@ -133,15 +133,19 @@ class Item {
 // Method to create the shopper's list 
 const SHOPPING_LIST_LENGTH = 5
 
-let createShoppingList = () => {
-  // TODO #0 randomly generate a list of 5 items to buy
+// create produce inventory
+let createProduceInventory = () => {
   // merge inventories from all the produce locations
-  let produceInventory = 
-    frontProduce.inventory
+  return frontProduce.inventory
     .concat(backProduce.inventory)
     .concat(leftProduce.inventory)
     .concat(rightProduce.inventory)
+}
+const produceInventory = createProduceInventory()
 
+// Create shopping list
+let createShoppingList = () => {
+  // TODO #0 randomly generate a list of 5 items to buy
   return _.take(_.shuffle(produceInventory), SHOPPING_LIST_LENGTH)
 }
 
@@ -251,7 +255,18 @@ What to do next? >_`
     // TODO #3 implement "take" actions, expect take [item]
     else if ( action == "take" ) {
       // non-produce items  -- shopping list, cart, inventory
+      if ( target === "shopping list") {
+        console.log(`Awesome! Here's what you need to get: `, shoppingList)
+      } else if ( target == "cart" ) {
+        console.log(`You got yourself a cart -- now let's get shopping!`)
+      } 
       // TODO #3b add take inventory (as item) => list what user has
+      else if ( target == "inventory" ) {
+        console.log(`Here's what you got so far:`, player.cart)
+      } else {
+
+      }
+      
 
       // taking a produce item
 
