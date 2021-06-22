@@ -252,6 +252,15 @@ What to do next? >_`
         console.log(`Hmmm, don't know ${target}. Look around!`)
       }   
     }
+    // examine shopping list & cart
+    else if ( action == "examine" ) {
+      // non-produce items  -- shopping list, cart, inventory
+      if ( target === "shopping list") {
+        console.log(`Awesome! Here's what you need to get: `, shoppingList)
+      } else if ( target == "cart" ) {
+        console.log(`Here's what you got in your cart: `, player.cart)
+      } 
+    }
     // TODO #3 implement "take" actions, expect take [item]
     else if ( action == "take" ) {
       // non-produce items  -- shopping list, cart, inventory
@@ -266,7 +275,6 @@ What to do next? >_`
       } else {
 
       }
-      
 
       // taking a produce item
 
