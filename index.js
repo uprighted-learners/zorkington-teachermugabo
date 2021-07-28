@@ -207,12 +207,32 @@ let player = {
   hasReceipt: false,
 }
 
-// Set up game -- describe current location for the user
-console.log(locationLookUp[player.currentLocation].getDescription())
+// ================== HELPER METHODS & GAME FUNCTIONALITY =================
 
-// let the games begin! -- recursively called to loop. Exit with 'leave'
-start()
+const processUserInput = (input) => {
+  let action = '',
+    target = '' // init variables
 
+  // TODO replace this logic with user input lookupTable
+  action = input[0] // first word
+  // add ability to process "go to" as well as just "go"
+  if (action === 'go' && input[1] === 'to') {
+    action = 'go to'
+    target = input.slice(2).join(' ') // the rest
+  }
+  // if action is not "go to", expect single word for command
+  else {
+    target = input.slice(1).join(' ') // the rest
+  }
+
+  return { action, target }
+}
+
+/**
+ * start()
+ * =======
+ * Main game loop - recursively called to loop. Exits with 'leave'
+ */
 async function start() {
   // user prompt
   const prompt = '\n\nWhat to do next? >_'
@@ -221,21 +241,8 @@ async function start() {
   // quick & dirty sanitizing
   let inputArray = answer.trim().toLowerCase().split(' ')
 
-  let action = ''
-  let target = ''
-
-  // process action
-  // + ability to process "go to"
-  // TODO replace this logic with user input lookupTable
-  action = inputArray[0] // first word
-  if (action === 'go' && inputArray[1] === 'to') {
-    action = 'go to'
-    target = inputArray.slice(2).join(' ') // the rest
-  }
-  // if action is not "go to", expect single word for command
-  else {
-    target = inputArray.slice(1).join(' ') // the rest
-  }
+  // extract desired action and object of the action from input
+  let { action, target } = processUserInput(inputArray)
 
   // execute user's wishes
   // if action isn't known, let user know
@@ -329,3 +336,11 @@ async function start() {
   start()
   // process.exit(); -- TODO understand how/when this line executes
 }
+
+// ======================= STARTING THE GAME ==============================
+
+// Set up game -- describe current location for the user
+console.log(locationLookUp[player.currentLocation].getDescription())
+
+// let the games begin!
+start()
