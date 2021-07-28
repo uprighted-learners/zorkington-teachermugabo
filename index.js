@@ -248,9 +248,8 @@ async function start() {
   // if action isn't known, let user know
   if (!player.actions.includes(action)) {
     console.log(
-      `Dear Shopper. You're limited to a few commands. 
-      You can go to [place], take [item], drop [item], etc...
-      Plz, try again.`
+      "Dear Shopper. You're limited to a few commands. \n" +
+        'You can go to [place], take [item], drop [item], etc... Plz, try again.'
     )
   }
   // if action is known, let user know as well
@@ -268,28 +267,35 @@ async function start() {
     else if (action === 'go to' || action === 'go') {
       // check/handle if valid location
       if (Object.keys(locationLookUp).includes(target)) {
+        // TODO exract this tof goTo(target)
         // check/handle if allowed transition
         // TODO story -- when leaving main entrance to cart room, main entrance locks!
-        //               can't leave w/o the full shopping leave.
+        //               can't leave w/o the shopping list fully checked off!
         // TODO story -- when shopper returns to main entrance w/ everything, unlock it!
+
+        // valid location
         if (locationLookUp[player.currentLocation].canGo(target)) {
           console.log(
             `Good guess! You left ${player.currentLocation} and are now in ${target}`
           )
           player.currentLocation = target
-        } else {
-          // TODO implement can't go from here to there -- if we got a valid location
+        }
+        // invalid location
+        else {
           console.log(
             `Can't go from ${player.currentLocation} to ${target}. Clues, shopper, clues.`
           )
         }
       } else {
         // wrong location -- help user with location
-        console.log(`Hmmm, don't know ${target}. Look around!`)
+        console.log(
+          `Hmmm, don't know ${target}. Look around! Clues, shopper, clues.`
+        )
       }
     }
     // examine shopping list & cart
     else if (action == 'examine') {
+      // TODO extract to examineItem(target)
       // non-produce items  -- shopping list, cart, inventory
       if (target === 'shopping list') {
         console.log(`Awesome! Here's what you need to get: `, shoppingList)
@@ -299,6 +305,7 @@ async function start() {
     }
     // TODO #3 implement "take" actions, expect take [item]
     else if (action == 'take') {
+      // TODO extract to take(target)
       // non-produce items  -- shopping list, cart, inventory
       if (target === 'shopping list') {
         console.log(`Awesome! Here's what you need to get: `, shoppingList)
@@ -315,6 +322,7 @@ async function start() {
     }
     // TODO #4 if "drop" expect target = [item], check
     else if (action === 'drop') {
+      // TODO implement drop(target)
     }
     // TODO #5 if "pay", say thanks - you're all set
     else if (action === 'pay')
@@ -326,7 +334,7 @@ async function start() {
     // if "leave" say bye
     else if (action === 'leave') {
       // TODO - Have they opened the main entrance?
-      //        If not, give them a hard time and release them.
+      //        If not, give them a hard time and then release them.
 
       console.log('bye')
       process.exit(0)
@@ -334,7 +342,6 @@ async function start() {
   }
 
   start()
-  // process.exit(); -- TODO understand how/when this line executes
 }
 
 // ======================= STARTING THE GAME ==============================
