@@ -79,21 +79,6 @@ const lookAround = (location) => {
 
 /** ======================== GAME SETUP ========================== */
 
-// create player with allowable actions, and cart
-let player = {
-  // set player's current location
-  name: "Bob",
-  currentLocation: "main entrance",
-  // allowed actions
-  // possible future extension: forward, back, left, right
-  actions: ["go", "go to", "take", "return", "pay", "leave", "look"],
-  cart: [],
-  hasReceipt: false,
-};
-
-// create random 5 item list from our inventory
-let shoppingList = createShoppingList(produceInventory, 5);
-
 // TODO add items
 // items - these will simply be shopping list, cart, cash register
 
@@ -112,11 +97,41 @@ class Item {
   }
 }
 
-// TODO next
-//  create items (use locations descriptions & pictures)
-//  decide on properties of the items -- takeable and such
+// this will be the cart the user takes & uses to shop
+let cart = new Item("cart", "This is your shopping cart", [], true, true);
 
-// - take(cart) -> contents, take(shopping list) -> contents, take(cash) -> Nope! No can do
+// shopping list with user's items to buy before they can leave :-)
+let shoppingList = new Item(
+  "shopping list",
+  "This is your shopping list - chop! chop!",
+  // creates random 5 item list from our product inventory
+  createShoppingList(produceInventory, 5),
+  true,
+  true
+);
+
+// cash available to user at the entrance with the shopping list
+let cash = new Item(
+  "cash money",
+  "This is the amount you have to purchase produce for your client",
+  // made contents $$ bills :-)
+  [5, 5, 10],
+  true,
+  true
+);
+
+// create player with allowable actions, and cart
+let player = {
+  // set player's current location
+  name: "Bob",
+  currentLocation: "main entrance",
+  // allowed actions
+  // possible future extension: forward, back, left, right
+  actions: ["go", "go to", "take", "return", "pay", "leave", "look"],
+  shoppingList: null,
+  cart: cartItem,
+  hasReceipt: false,
+};
 
 /** ======================== GAME LOGIC ========================== */
 
