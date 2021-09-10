@@ -25,7 +25,7 @@ class Location {
   }
 
   canGo(location) {
-    return this.adjacent.includes(location);
+    return this.adjacent.includes(friendlyLocationNamesMappingTable[location]);
   }
 }
 
@@ -107,7 +107,7 @@ let checkout = new Location(
 );
 
 // locations & location instance lookupTable
-const locationLookUpTable = {
+const locationInstancesLookUpTable = {
   "main entrance": mainEntrace,
   "cart room": cartRoom,
   "front produce": frontProduce,
@@ -124,10 +124,75 @@ const locationLookUpTable = {
   // seems like a bad/poor pattern!
 };
 
+const friendlyLocationNamesMappingTable = {
+  // main entrance names
+  "main entrance": "main entrance",
+  entrance: "main entrance",
+  // cart room names
+  "cart room": "cart room",
+  cartroom: "cart room",
+  carts: "cart room",
+  // front produce names
+  "front produce": "front produce",
+  front: "front produce",
+  // back produce names
+  "back produce": "back produce",
+  back: "back produce",
+  // left produce names
+  "left produce": "left produce",
+  left: "left produce",
+  // right produce names
+  "right produce": "right produce",
+  right: "right produce",
+  // checkout names (default will do)
+  checkout: "checkout",
+};
+
 // create inventory by aggregating all locations' inventories
 const produceInventory = frontProduce.inventory
   .concat(backProduce.inventory)
   .concat(leftProduce.inventory)
   .concat(rightProduce.inventory);
 
-module.exports = { locationLookUpTable, produceInventory };
+// ==================== LOCATION HELPER METHODS ==============
+
+/**
+ * isValidLocation - helper predicate to verify that a target location
+ * is in fact a valid location in our game.
+ *
+ * @param {String} location
+ * @returns {Boolean} true/false
+ */
+const isValidLocation = (location) =>
+  Object.keys(friendlyLocationNamesMappingTable).includes(location);
+
+/**
+ * isValidNextLocation - helper predicate to verify that a given target
+ * location is a valid NEXT location from the CURRENT location.
+ *
+ * @param {String} location
+ * @returns {Boolean} true/false
+ */
+const isValidNextLocation = (current, next) =>
+  locationInstancesLookUpTable[current].canGo(next);
+
+/**
+ * getOfficialLocationName - helper method to return the internal
+ * location name.
+ *
+ * @param {String} target
+ * @returns {String | null} official location, if it exists (null otherwise)
+ */
+const getOfficialLocationName = (target) =>
+  isValidLocation(target) ? friendlyLocationNamesMappingTable[target] : null;
+
+const getLocationDescription = (location) =>
+  locationInstancesLookUpTable[location].lookAround();
+
+module.exports = {
+  produceInventory,
+  isValidLocation,
+  isValidNextLocation,
+  getOfficialLocationName,
+  getLocationDescription,
+};

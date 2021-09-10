@@ -8,7 +8,13 @@
 
 const _ = require("underscore");
 const ask = require("./scripts/ask");
-const { locationLookUpTable, produceInventory } = require("./locations");
+const {
+  produceInventory,
+  isValidLocation,
+  isValidNextLocation,
+  getOfficialLocationName,
+  getLocationDescription,
+} = require("./locations");
 
 /** ======================== HELPER METHODS ========================== */
 
@@ -32,20 +38,26 @@ let createShoppingList = (inventory, listLength) =>
  * @param {String} input
  * @returns {{String, String}} action and target object
  */
-const preprocessUserInput = (input) => {
+const preprocessUserInput = (rawInput) => {
   let action = "",
     target = ""; // init variables
 
-  // TODO replace this logic with user input lookupTable
-  action = input[0]; // first word
+  // quick & dirty sanitizing
+  let inputArray = rawInput.trim().toLowerCase().split(" ");
+
+  // ? Refactoring opportunity: replace this logic with user input lookupTable
+
+  // grab action (first work)
+  action = inputArray[0];
+
   // add ability to process "go to" as well as just "go"
-  if (action === "go" && input[1] === "to") {
+  if (action === "go" && inputArray[1] === "to") {
     action = "go to";
-    target = input.slice(2).join(" "); // the rest
+    target = inputArray.slice(2).join(" "); // the rest
   }
   // if action is not "go to", expect single word for command
   else {
-    target = input.slice(1).join(" "); // the rest
+    target = inputArray.slice(1).join(" "); // the rest
   }
 
   return { action, target };
@@ -96,18 +108,16 @@ class Item {
 /**
  * start()
  * =======
- * Main game loop - recursively called to loop. Exits with 'leave'
+ * Main game loop (recursive) that encompass all game logic
+ * Exits with 'leave'
  */
 async function start() {
   // user prompt
   const prompt = "\n\nWhat to do next? >_";
   let answer = await ask(prompt);
 
-  // quick & dirty sanitizing
-  let inputArray = answer.trim().toLowerCase().split(" ");
-
   // extract desired action and object of the action from input
-  let { action, target } = preprocessUserInput(inputArray);
+  let { action, target } = preprocessUserInput(answer);
 
   // execute user's wishes
   // if action isn't known, let user know
@@ -125,24 +135,33 @@ async function start() {
     if (action === "look") {
       // TODO explore using text wrapping - currently using `` and formatting as desired.
       // https://stackoverflow.com/questions/14484787/wrap-text-in-javascript
-      console.log(locationLookUpTable[player.currentLocation].lookAround());
+      console.log(getLocationDescription(player.currentLocation));
     }
     // ===     logic to move b/t locations ===== //
     // if "go", expect/check target is location,
     else if (action === "go to" || action === "go") {
-      // check/handle if valid location
-      if (Object.keys(locationLookUpTable).includes(target)) {
-        // TODO exract this tof goTo(target)
+      // check #1 - is this target a valid location
+      // check/handle if valid location - use friendly map to allow
+      // for many names for the same location :-)
+      if (isValidLocation(target)) {
+        // TODO extract this tof goTo(target)
         // check/handle if allowed transition
         // TODO story -- when leaving main entrance to cart room, main entrance locks!
         //               can't leave w/o the shopping list fully checked off!
         // TODO story -- when shopper returns to main entrance w/ everything, unlock it!
 
+        // check #2 - is this target a valid next location? Is it adjacent to current location?
         // valid location
-        if (locationLookUpTable[player.currentLocation].canGo(target)) {
+        if (isValidNextLocation(player.currentLocation, target)) {
+          // rename target to use our internal name for that location
+          target = getOfficialLocationName(target);
+
+          // let user know where they are -- they just changed locations
           console.log(
             `Good guess! You left ${player.currentLocation} and are now in ${target}`
           );
+
+          // set current location to the new place
           player.currentLocation = target;
         }
         // invalid location
@@ -217,7 +236,7 @@ async function start() {
 // ======================= START THE GAME ==============================
 
 // To start the game, describe current location for the user
-console.log(locationLookUpTable[player.currentLocation].getDescription());
+console.log(getLocationDescription(player.currentLocation));
 
 // let the games begin!
 start();
