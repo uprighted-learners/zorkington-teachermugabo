@@ -144,14 +144,7 @@ const getItemName = (target) =>
 const getItemDescription = (target) =>
   isItem(target) ? itemsLookupTable[target].description : throwNotItemError();
 
-const isItemAvailable = (location, item) => {
-  // if special cases: carts and shopping list, once you have them, they travel
-  if (getItemName(target) === "shopping list")
-    return player.shoppingList != null;
-  else if (getItemName(target) === "small cart") return player.cart != null;
-  // for everything else, locations have knowledge of their own inventory
-  else getLocation(location).has(item);
-};
+const isItemAvailable = (location, item) => getLocation(location).has(item);
 
 const isItemTakeable = (target) =>
   isItem(target) ? itemsLookupTable[target].takeable : throwNotItemError();
@@ -250,6 +243,26 @@ const take = (target) => {
     // ! delete:
     console.debug(`!Yes, ${target} is an item`);
 
+    // special cases: carts and shopping list, once you have them, they travel
+    if (
+      getItemName(target) === "shopping list" &&
+      player.shoppingList != null
+    ) {
+      // show what's here
+      console.log(
+        `Here's what you need to get: `,
+        player.shoppingList.contents
+      );
+      return;
+    }
+
+    // special case: same as shopping list -- cart travels once gotten.
+    if (getItemName(target) === "small cart" && player.cart != null) {
+      // show what's in the cart
+      console.log(`Here's what you got in your cart`, player.cart.contents);
+      return;
+    }
+
     //  make sure the item available in current location
     if (!isItemAvailable(player.currentLocation, getItemName(target))) {
       // !delete
@@ -268,34 +281,20 @@ const take = (target) => {
       return;
     }
 
-    // if item is shopping list - assign to player.shoppingList & mark it taken
+    // players gets the shopping list
     if (getItemName(target) === "shopping list") {
-      // check that the user hasn't already taken in
-      if (player.shoppingList) {
-        console.log(`You already got it. Looks like you forgot.`);
-        console.log(
-          `Here's what you need to get: `,
-          player.shoppingList.contents
-        );
-      } else {
-        player.shoppingList = getItem(target);
-        console.log(
-          `Awesome!  Here's what you need to get: `,
-          player.shoppingList.contents
-        );
-      }
+      player.shoppingList = getItem(target);
+      console.log(
+        `Awesome!  Here's what you need to get: `,
+        player.shoppingList.contents
+      );
       return;
     }
 
-    // if item is the cart
+    // player gets cart
     if (getItemName(target) == "small cart") {
-      // check that the user hasn't already taken it.
-      if (player.cart)
-        console.log(`Here's what you got in your cart`, player.cart.contents);
-      else {
-        player.cart = getItem(target);
-        console.log(`You got yourself a small cart -- now let's get shopping!`);
-      }
+      player.cart = getItem(target);
+      console.log(`You got yourself a small cart -- now let's get shopping!`);
       return;
     }
   }
@@ -309,7 +308,9 @@ const take = (target) => {
     }
     // make sure the item is present here - in current location
     else if (!isItemAvailable(player.currentLocation, target)) {
-      console.log(`Not sure we have ${target} here. Look closer.`);
+      console.log(
+        `Not sure we have ${target} here. Don't be discouraged though. It's a big store!`
+      );
       return;
     }
     // Yay! now add produce to cart
