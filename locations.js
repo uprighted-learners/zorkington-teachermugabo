@@ -33,14 +33,14 @@ class Location {
 let mainEntrace = new Location(
   "main entrance",
   `Hello Shopper! In case you've forgotten, you've been hired as a shopper
-  for our dear dear customers at Hannafords. In the cart room, you'll find the
+  for our dear dear customers at Hannafords. In the carts room, you'll find the
   your shopping list on the hiring stand. You are currently at the main entrance.
-  In front of you are the doors to Hannafords.  Next up is the cart room.
+  In front of you are the doors to Hannafords.  Next up is the carts room.
   You'll need one. If you need help along the way, remember to just look around.`,
-  ["cart room"]
+  ["carts room"]
 );
 let cartRoom = new Location(
-  "cart room",
+  "carts room",
   `See the large carts on your right and small carts to your left.
   We're also hiring! Baskets are by the front produce`,
   ["front produce"],
@@ -52,7 +52,7 @@ let frontProduce = new Location(
   and local strawberries. Yum! To your right are some green stuff you
   can't quite make out. And to your right is a smorgasbord of fruit.
   This was damn place is a smorgasbord!`,
-  ["cart room", "back produce", "left produce", "right produce"],
+  ["carts room", "back produce", "left produce", "right produce"],
   ["strawberries", "tomatoes"]
 );
 let backProduce = new Location(
@@ -109,7 +109,7 @@ let checkout = new Location(
 // locations & location instance lookupTable
 const locationInstancesLookUpTable = {
   "main entrance": mainEntrace,
-  "cart room": cartRoom,
+  "carts room": cartRoom,
   "front produce": frontProduce,
   "back produce": backProduce,
   "left produce": leftProduce,
@@ -117,7 +117,7 @@ const locationInstancesLookUpTable = {
   checkout: checkout,
 
   // * potential improvement - add "forgiving" location names
-  // e.g. carts and cartroom for "cart room", front for "front product", etc...
+  // e.g. carts and cartroom for "carts room", front for "front product", etc...
   // ISSUE (are for refactoring):
   // Currently, adding locations here isn't enough, I need
   // to update locations in each Location class instance as well.
@@ -128,10 +128,11 @@ const friendlyLocationNamesMappingTable = {
   // main entrance names
   "main entrance": "main entrance",
   entrance: "main entrance",
-  // cart room names
-  "cart room": "cart room",
-  cartroom: "cart room",
-  carts: "cart room",
+  // carts room names
+  "carts room": "carts room",
+  cartroom: "carts room",
+  carts: "carts room",
+  cart: "carts room",
   // front produce names
   "front produce": "front produce",
   front: "front produce",
