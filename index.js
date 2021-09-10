@@ -158,7 +158,7 @@ let player = {
   currentLocation: "main entrance",
   // allowed actions
   // * possible future extension: forward, back, left, right
-  actions: ["go", "go to", "take", "examine", "return", "pay", "leave", "look"],
+  actions: ["go", "go to", "take", "examine", "drop", "pay", "leave", "look"],
   shoppingList: null,
   cart: null,
   hasReceipt: false,
@@ -340,7 +340,6 @@ const take = (target) => {
  */
 const drop = (item) => {
   // TODO implement drop(target)
-  // TODO #4 if "drop" expect target = [item], check
   console.log(
     `Shopper, you're playing the basic version. I'm afraid you're stuck with ${item}.`
   );
@@ -401,10 +400,16 @@ async function start() {
     else if (action === "pay") pay();
     // user wants to exit - say thanks & bye
     else if (action === "leave") {
-      // TODO - Have they opened the main entrance?
-      //        If not, give them a hard time and then release them.
+      // if user hasn't actually finished the game, give them hard time on way out
+      if (!player.hasReceipt) {
+        console.log(
+          `So you're just gonna quit? Just like that? Too bad. Better luck next time. `
+        );
+        process.exit(0);
+      }
 
-      console.log("Thanks for playing! Bye for now <3");
+      // otherwise, thanks player!
+      console.log("Thank you for all you do! Bye for now <3");
       process.exit(0);
     }
   }
