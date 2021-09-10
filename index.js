@@ -120,6 +120,15 @@ let cash = new Item(
   true
 );
 
+// cash register at checkout -- there's money here
+let cashRegister = new Item(
+  "cash register",
+  "Storage for all the $$$$ customers bring to the story",
+  [1, 1, 5, 5, 5, 5, 50, 50, 100, 100, 500, 500, 2000],
+  false,
+  false
+);
+
 // create player with allowable actions, and cart
 let player = {
   // set player's current location
