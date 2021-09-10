@@ -103,7 +103,7 @@ let checkout = new Location(
   "checkout",
   `So you're ready to check out. Got everything on your list?`,
   ["left produce"],
-  ["receipt"]
+  ["receipt", "cash register"]
 );
 
 // locations & location instance lookupTable
