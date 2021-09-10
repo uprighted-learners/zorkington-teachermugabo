@@ -50,17 +50,31 @@ const preprocessUserInput = (rawInput) => {
   // grab action (first work)
   action = inputArray[0];
 
-  // add ability to process "go to" as well as just "go"
+  // add ability to process "go to"
   if (action === "go" && inputArray[1] === "to") {
     action = "go to";
     target = inputArray.slice(2).join(" "); // the rest
   }
   // if action is not "go to", expect single word for command
   else {
-    target = inputArray.slice(1).join(" "); // the rest
+    // if action is simply "go", mapping it to "go to"
+    if (action === "go") action = "go to";
+
+    // with a single word for action, the rest = target/object
+    target = inputArray.slice(1).join(" ");
   }
 
   return { action, target };
+};
+
+/**
+ * lookAround - helper method to encapsulate examining a location.
+ * Simply prints out to console.
+ *
+ * @param {String} location
+ */
+const lookAround = (location) => {
+  console.log(getLocationDescription(player.currentLocation));
 };
 
 /** ======================== GAME SETUP ========================== */
@@ -105,6 +119,132 @@ class Item {
 // - take(cart) -> contents, take(shopping list) -> contents, take(cash) -> Nope! No can do
 
 /** ======================== GAME LOGIC ========================== */
+
+/**
+ * isValidPlayerAction - predicate  method that validates user actions
+ *
+ * @param {String} action
+ * @returns {Boolean}
+ */
+const isValidPlayerAction = (action) => player.actions.includes(action);
+
+/**
+ * goTo - game logic method - handles movements in the game.
+ *
+ * @param {String} target - next location
+ */
+const goTo = (target) => {
+  // check #1 - is this target a valid location
+  // check/handle if valid location - use friendly map to allow
+  // for many names for the same location :-)
+  if (isValidLocation(target)) {
+    // check/handle if allowed transition
+    // TODO story -- when leaving main entrance to cart room, main entrance locks!
+    //               can't leave w/o the shopping list fully checked off!
+    // TODO story -- when shopper returns to main entrance w/ everything, unlock it!
+
+    // check #2 - is this target a valid next location? Is it adjacent to current location?
+    // valid location
+    if (isValidNextLocation(player.currentLocation, target)) {
+      // rename target to use our internal name for that location
+      target = getOfficialLocationName(target);
+
+      // let user know where they are -- they just changed locations
+      console.log(
+        `Good guess! You left ${player.currentLocation} and are now in ${target}`
+      );
+
+      // set current location to the new place
+      player.currentLocation = target;
+    }
+    // invalid location
+    else {
+      console.log(
+        `Can't go from ${player.currentLocation} to ${target}. Clues, shopper, clues.`
+      );
+    }
+  } else {
+    // wrong location -- help user with location
+    console.log(
+      `Hmmm, don't know ${target}. Look around! Clues, shopper, clues.`
+    );
+  }
+};
+
+/**
+ * examine - game logic method - encapsulates user exploration
+ * of items in their environment.
+ *
+ * @param {String} target
+ */
+const examine = (target) => {
+  // examine produce (examine tomato)
+  // non-produce items  -- shopping list, cart, inventory
+  // what else might they try to examine?
+  if (target === "shopping list") {
+    console.log(`Awesome! Here's what you need to get: `, shoppingList);
+  } else if (target == "cart") {
+    console.log(`Here's what you got in your cart: `, player.cart);
+  }
+};
+
+/**
+ * take - game logic method - encapsulates user interaction with
+ * their environment. In particular, taking items.
+ *
+ * @param {String} item
+ */
+const take = (item) => {
+  // TODO #3 implement "take" actions, expect take [item]
+  // take produce item (.e.g tomatoes, raspberry) -- simply add these to player's cart
+  // potential issue: what if they type 'raspberry' instead of raspberries? or 2 apples?
+
+  // take non-produce items (e.g. shopping list, cart, inventory
+  // some of these will be same as examine...
+  if (item === "shopping list") {
+    console.log(`Awesome! Here's what you need to get: `, shoppingList);
+  } else if (item == "cart") {
+    console.log(`You got yourself a cart -- now let's get shopping!`);
+  }
+  // TODO #3b add take inventory (as item) => list what user has
+  else if (item == "inventory") {
+    console.log(`Here's what you got so far:`, player.cart);
+  } else {
+  }
+
+  // taking a produce item
+  // what should happen there? what to do?!
+  // take tomatoes
+  // take tomato
+  // take grapes
+  // if in inventory -- we can say, hey, lookie here, produce!
+};
+
+/**
+ * drop - game logic method - allow user to drop an item.
+ *
+ * @param {String} item
+ */
+const drop = (item) => {
+  // TODO implement drop(target)
+  // TODO #4 if "drop" expect target = [item], check
+};
+
+/**
+ * pay - user logic method - allow user to pay and guide
+ * them back to the exit (with a few clues)
+ * ? what variables must we set to mark payment
+ * ? is there anything we need to check? Like shopping list?
+ * ? Is this where we set a flag to mark that they've gotten everything?
+ */
+const pay = () => {
+  console.log(
+    `
+      Thanks for the cashless exchange! You're all set.
+      You can leave now. You remember where you came from, don't you?`
+  );
+};
+
 /**
  * start()
  * =======
@@ -112,124 +252,48 @@ class Item {
  * Exits with 'leave'
  */
 async function start() {
-  // user prompt
-  const prompt = "\n\nWhat to do next? >_";
-  let answer = await ask(prompt);
+  // prompt user
+  let answer = await ask("\n\nWhat to do next? >_");
 
   // extract desired action and object of the action from input
   let { action, target } = preprocessUserInput(answer);
 
   // execute user's wishes
   // if action isn't known, let user know
-  if (!player.actions.includes(action)) {
+  if (!isValidPlayerAction(action)) {
     console.log(
       "Dear Shopper. You're limited to a few commands. \n" +
         "You can go to [place], take [item], drop [item], etc... Plz, try again."
     );
   }
-  // if action is known, let user know as well
+  // if action is known, let user know as well & try to accomodate their request
   else {
     console.log(`Ah, so you want want to ${action} ${target}.`);
 
-    // if look - assume "look around" - get current place's location & look out!
-    if (action === "look") {
-      // TODO explore using text wrapping - currently using `` and formatting as desired.
-      // https://stackoverflow.com/questions/14484787/wrap-text-in-javascript
-      console.log(getLocationDescription(player.currentLocation));
-    }
-    // ===     logic to move b/t locations ===== //
-    // if "go", expect/check target is location,
-    else if (action === "go to" || action === "go") {
-      // check #1 - is this target a valid location
-      // check/handle if valid location - use friendly map to allow
-      // for many names for the same location :-)
-      if (isValidLocation(target)) {
-        // TODO extract this tof goTo(target)
-        // check/handle if allowed transition
-        // TODO story -- when leaving main entrance to cart room, main entrance locks!
-        //               can't leave w/o the shopping list fully checked off!
-        // TODO story -- when shopper returns to main entrance w/ everything, unlock it!
-
-        // check #2 - is this target a valid next location? Is it adjacent to current location?
-        // valid location
-        if (isValidNextLocation(player.currentLocation, target)) {
-          // rename target to use our internal name for that location
-          target = getOfficialLocationName(target);
-
-          // let user know where they are -- they just changed locations
-          console.log(
-            `Good guess! You left ${player.currentLocation} and are now in ${target}`
-          );
-
-          // set current location to the new place
-          player.currentLocation = target;
-        }
-        // invalid location
-        else {
-          console.log(
-            `Can't go from ${player.currentLocation} to ${target}. Clues, shopper, clues.`
-          );
-        }
-      } else {
-        // wrong location -- help user with location
-        console.log(
-          `Hmmm, don't know ${target}. Look around! Clues, shopper, clues.`
-        );
-      }
-    }
-    // examine shopping list & cart
-    else if (action == "examine") {
-      // TODO extract to examineItem(target)
-      // examine produce (examine tomato)
-      // non-produce items  -- shopping list, cart, inventory
-      if (target === "shopping list") {
-        console.log(`Awesome! Here's what you need to get: `, shoppingList);
-      } else if (target == "cart") {
-        console.log(`Here's what you got in your cart: `, player.cart);
-      }
-    }
-    // TODO #3 implement "take" actions, expect take [item]
-    else if (action == "take") {
-      // TODO extract to take(target)
-      // take produce item (.e.g tomatoes, raspberry) -- simply add these to player's cart
-      // potential issue: what if they type 'raspberry' instead of raspberries? or 2 apples?
-
-      // take non-produce items (e.g. shopping list, cart, inventory
-      // some of these will be same as examine...
-      if (target === "shopping list") {
-        console.log(`Awesome! Here's what you need to get: `, shoppingList);
-      } else if (target == "cart") {
-        console.log(`You got yourself a cart -- now let's get shopping!`);
-      }
-      // TODO #3b add take inventory (as item) => list what user has
-      else if (target == "inventory") {
-        console.log(`Here's what you got so far:`, player.cart);
-      } else {
-      }
-
-      // taking a produce item
-    }
-    // TODO #4 if "drop" expect target = [item], check
-    else if (action === "drop") {
-      // TODO implement drop(target)
-    }
-    // TODO #5 if "pay", say thanks - you're all set
-    else if (action === "pay")
-      console.log(
-        `
-      Thanks for the cashless exchange! You're all set.
-      You can leave now. You remember where you came from, don't you?`
-      );
-    // if "leave" say bye
+    // =============== CORE GAME LOGIC =================
+    // user looks around (from current location)
+    if (action === "look") lookAround(player.currentLocation);
+    // user attempts to move to neighboring location
+    else if (action === "go to") goTo(target);
+    // user examines an object
+    else if (action == "examine") examine(target);
+    // user takes an item
+    else if (action == "take") take(target);
+    // user drops an item from their inventory (i.e. cart)
+    else if (action === "drop") drop(target);
+    // user wants to pay!
+    else if (action === "pay") pay();
+    // user wants to exit - say thanks & bye
     else if (action === "leave") {
       // TODO - Have they opened the main entrance?
       //        If not, give them a hard time and then release them.
 
-      console.log("bye");
+      console.log("Thanks for playing! Bye for now <3");
       process.exit(0);
     }
   }
 
+  // loop -- till game is a success and/or user leaves
   await start();
 }
 
