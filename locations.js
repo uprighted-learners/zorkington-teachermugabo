@@ -27,6 +27,10 @@ class Location {
   canGo(location) {
     return this.adjacent.includes(friendlyLocationNamesMappingTable[location]);
   }
+
+  has(target) {
+    return this.inventory.includes(target);
+  }
 }
 
 // create locations with mapped allowable transitions
@@ -44,7 +48,7 @@ let cartRoom = new Location(
   `See the large carts on your right and small carts to your left.
   We're also hiring! Baskets are by the front produce`,
   ["front produce"],
-  ["big carts", "small carts", "shopping list"]
+  ["big cart", "small cart", "shopping list"]
 );
 let frontProduce = new Location(
   "front produce",
@@ -130,6 +134,7 @@ const friendlyLocationNamesMappingTable = {
   entrance: "main entrance",
   // carts room names
   "carts room": "carts room",
+  "cart room": "carts room",
   cartroom: "carts room",
   carts: "carts room",
   cart: "carts room",
@@ -190,10 +195,13 @@ const getOfficialLocationName = (target) =>
 const getLocationDescription = (location) =>
   locationInstancesLookUpTable[location].lookAround();
 
+const getLocation = (location) => locationInstancesLookUpTable[location];
+
 module.exports = {
   produceInventory,
   isValidLocation,
   isValidNextLocation,
   getOfficialLocationName,
   getLocationDescription,
+  getLocation,
 };

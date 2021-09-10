@@ -14,6 +14,7 @@ const {
   isValidNextLocation,
   getOfficialLocationName,
   getLocationDescription,
+  getLocation,
 } = require("./locations");
 
 /** ======================== HELPER METHODS ========================== */
@@ -44,8 +45,6 @@ const preprocessUserInput = (rawInput) => {
 
   // quick & dirty sanitizing
   let inputArray = rawInput.trim().toLowerCase().split(" ");
-
-  // ? Refactoring opportunity: replace this logic with user input lookupTable
 
   // grab action (first work)
   action = inputArray[0];
@@ -79,26 +78,27 @@ const lookAround = (location) => {
 
 /** ======================== GAME SETUP ========================== */
 
-// TODO add items
-// items - these will simply be shopping list, cart, cash register
-
 class Item {
-  constructor(
-    name,
-    description = "",
-    contents = [],
-    available = false,
-    takeable = false
-  ) {
+  constructor(name, description = "", contents = [], takeable = false) {
     this.name = name;
     this.contents = contents;
-    this.available = available;
     this.takeable = takeable;
   }
 }
 
 // this will be the cart the user takes & uses to shop
-let cart = new Item("cart", "This is your shopping cart", [], true, true);
+let smallCart = new Item(
+  "small cart",
+  "This is your shopping cart - good side for what we need",
+  [],
+  true
+);
+let bigCart = new Item(
+  "big cart",
+  "This is a jumbo shopping cart. Seems to be tied & locked with the rest.",
+  [],
+  false
+);
 
 // shopping list with user's items to buy before they can leave :-)
 let shoppingList = new Item(
@@ -106,28 +106,57 @@ let shoppingList = new Item(
   "This is your shopping list - chop! chop!",
   // creates random 5 item list from our product inventory
   createShoppingList(produceInventory, 5),
-  true,
-  true
-);
-
-// cash available to user at the entrance with the shopping list
-let cash = new Item(
-  "cash money",
-  "This is the amount you have to purchase produce for your client",
-  // made contents $$ bills :-)
-  [5, 5, 10],
-  true,
   true
 );
 
 // cash register at checkout -- there's money here
 let cashRegister = new Item(
   "cash register",
-  "Storage for all the $$$$ customers bring to the story",
+  "Storage for Hannaford's $$$$",
   [1, 1, 5, 5, 5, 5, 50, 50, 100, 100, 500, 500, 2000],
-  false,
   false
 );
+
+// Items lookup table
+const itemsLookupTable = {
+  "small cart": smallCart,
+  cart: smallCart,
+  "big cart": bigCart,
+  "shopping list": shoppingList,
+  list: shoppingList,
+  "cash register": cashRegister,
+  register: cashRegister,
+};
+
+// Items Interace -- helper methods to work with items of the game
+// * refactor opportunity: extract to & export from items.js
+const isItem = (target) => Object.keys(itemsLookupTable).includes(target);
+const throwNotItemError = () => {
+  throw `${target} is not an instance of class Item`;
+};
+
+const getItem = (target) =>
+  isItem(target) ? itemsLookupTable[target] : throwNotItemError();
+
+const getItemName = (target) =>
+  isItem(target) ? itemsLookupTable[target].name : throwNotItemError();
+
+const getItemDescription = (target) =>
+  isItem(target) ? itemsLookupTable[target].description : throwNotItemError();
+
+const isItemAvailable = (location, item) => {
+  // if special cases: carts and shopping list, once you have them, they travel
+  if (getItemName(target) === "shopping list")
+    return player.shoppingList != null;
+  else if (getItemName(target) === "small cart") return player.cart != null;
+  // for everything else, locations have knowledge of their own inventory
+  else getLocation(location).has(item);
+};
+
+const isItemTakeable = (target) =>
+  isItem(target) ? itemsLookupTable[target].takeable : throwNotItemError();
+
+const isProduce = (target) => produceInventory.includes(target);
 
 // create player with allowable actions, and cart
 let player = {
@@ -135,10 +164,10 @@ let player = {
   name: "Bob",
   currentLocation: "main entrance",
   // allowed actions
-  // possible future extension: forward, back, left, right
-  actions: ["go", "go to", "take", "return", "pay", "leave", "look"],
+  // * possible future extension: forward, back, left, right
+  actions: ["go", "go to", "take", "examine", "return", "pay", "leave", "look"],
   shoppingList: null,
-  cart: cartItem,
+  cart: null,
   hasReceipt: false,
 };
 
@@ -202,46 +231,105 @@ const goTo = (target) => {
  * @param {String} target
  */
 const examine = (target) => {
-  // examine produce (examine tomato)
-  // non-produce items  -- shopping list, cart, inventory
-  // what else might they try to examine?
-  if (target === "shopping list") {
-    console.log(`Awesome! Here's what you need to get: `, shoppingList);
-  } else if (target == "cart") {
-    console.log(`Here's what you got in your cart: `, player.cart);
-  }
+  // examine an item (non-produce) item
+  if (isItem(target)) console.log(getItemDescription(target));
+  else if (isProduce(target))
+    console.log(`That vegetable looks fine. Or is it a fruit? Who cares.`);
+  else console.log(`Hmmm...not much there really. Keep it moving.`);
 };
 
 /**
  * take - game logic method - encapsulates user interaction with
  * their environment. In particular, taking items.
  *
- * @param {String} item
+ * @param {String} target
  */
-const take = (item) => {
-  // TODO #3 implement "take" actions, expect take [item]
-  // take produce item (.e.g tomatoes, raspberry) -- simply add these to player's cart
-  // potential issue: what if they type 'raspberry' instead of raspberries? or 2 apples?
+const take = (target) => {
+  // is this a non-produce item in the game?
+  if (isItem(target)) {
+    // ! delete:
+    console.debug(`!Yes, ${target} is an item`);
 
-  // take non-produce items (e.g. shopping list, cart, inventory
-  // some of these will be same as examine...
-  if (item === "shopping list") {
-    console.log(`Awesome! Here's what you need to get: `, shoppingList);
-  } else if (item == "cart") {
-    console.log(`You got yourself a cart -- now let's get shopping!`);
-  }
-  // TODO #3b add take inventory (as item) => list what user has
-  else if (item == "inventory") {
-    console.log(`Here's what you got so far:`, player.cart);
-  } else {
-  }
+    //  make sure the item available in current location
+    if (!isItemAvailable(player.currentLocation, getItemName(target))) {
+      // !delete
+      console.debug(
+        `!Nope, there is no ${target} here at ${player.currentLocation}`
+      );
+      console.log(`Sorry shopper, ${target} isn't available here.`);
+      return;
+    }
+    // make sure is is also 'takeable'
+    if (!isItemTakeable(target)) {
+      console.debug(`!No, ${target} is not a takeable them`);
+      console.log(
+        `Hmm, unfortunately ${target} is not for sale. Go get yee some produce!`
+      );
+      return;
+    }
 
-  // taking a produce item
-  // what should happen there? what to do?!
-  // take tomatoes
-  // take tomato
-  // take grapes
-  // if in inventory -- we can say, hey, lookie here, produce!
+    // if item is shopping list - assign to player.shoppingList & mark it taken
+    if (getItemName(target) === "shopping list") {
+      // check that the user hasn't already taken in
+      if (player.shoppingList) {
+        console.log(`You already got it. Looks like you forgot.`);
+        console.log(
+          `Here's what you need to get: `,
+          player.shoppingList.contents
+        );
+      } else {
+        player.shoppingList = getItem(target);
+        console.log(
+          `Awesome!  Here's what you need to get: `,
+          player.shoppingList.contents
+        );
+      }
+      return;
+    }
+
+    // if item is the cart
+    if (getItemName(target) == "small cart") {
+      // check that the user hasn't already taken it.
+      if (player.cart)
+        console.log(`Here's what you got in your cart`, player.cart.contents);
+      else {
+        player.cart = getItem(target);
+        console.log(`You got yourself a small cart -- now let's get shopping!`);
+      }
+      return;
+    }
+  }
+  // is it a produce item?
+  else if (isProduce(target)) {
+    console.debug(`!Yes, ${target} is a produce item.`);
+    // check that we have a cart first - send them to get it if they dont.
+    if (!player.cart) {
+      console.log(`Nope. Gotta go get a cart first.`);
+      return;
+    }
+    // make sure the item is present here - in current location
+    else if (!isItemAvailable(player.currentLocation, target)) {
+      console.log(`Not sure we have ${target} here. Look closer.`);
+      return;
+    }
+    // Yay! now add produce to cart
+    else {
+      console.log(`Good call! ${target} now in your cart.`);
+      player.cart.contents.push(target);
+    }
+  }
+  // is the user simply taking inventory?
+  else if (target == "inventory") {
+    console.log(`Here's what you got so far:`, player.cart.contents);
+    // ? is this same as examine("cart")
+  }
+  // nothing else is takeable
+  else {
+    console.debug(`!No known item matched '${target}'`);
+    console.log(
+      `Hmmm, look closer. Where do you see ${target} in this ${player.currentLocation}?`
+    );
+  }
 };
 
 /**
@@ -252,6 +340,9 @@ const take = (item) => {
 const drop = (item) => {
   // TODO implement drop(target)
   // TODO #4 if "drop" expect target = [item], check
+  console.log(
+    `Shopper, you're playing the basic version. I'm afraid you're stuck with ${item}.`
+  );
 };
 
 /**
@@ -287,7 +378,7 @@ async function start() {
   if (!isValidPlayerAction(action)) {
     console.log(
       "Dear Shopper. You're limited to a few commands. \n" +
-        "You can go to [place], take [item], drop [item], etc... Plz, try again."
+        "You can go to [place], take [item], examine [item], drop [item], etc... Plz, try again."
     );
   }
   // if action is known, let user know as well & try to accomodate their request
