@@ -1,10 +1,76 @@
+/** FILE ORGANIZATION
+ *  0) IMPORTS
+ *  1) HELPER METHODS
+ *  2) GAME SETUP
+ *  3) GAME LOGIC
+ *  4) EXECUTION (calls game logic)
+ */
+
 const _ = require("underscore");
 const ask = require("./scripts/ask");
 const { locationLookUpTable, produceInventory } = require("./locations");
 
+/** ======================== HELPER METHODS ========================== */
+
+/**
+ * Helper method to create a random shopping list from inventory
+ * @param {Array} inventory
+ * @param {Number} listLength
+ * @returns shopping list of requested length
+ */
+let createShoppingList = (inventory, listLength) =>
+  _.take(_.shuffle(inventory), listLength);
+
+/**
+ * Name: preprocessUserInput
+ *
+ * Does initial cleaning of user input (user request).
+ * Particularly helping with accomodating "go" and "go to"
+ * when the general user request pattern is "[action] [target]"
+ * where both action and target are atomic.
+ *
+ * @param {String} input
+ * @returns {{String, String}} action and target object
+ */
+const preprocessUserInput = (input) => {
+  let action = "",
+    target = ""; // init variables
+
+  // TODO replace this logic with user input lookupTable
+  action = input[0]; // first word
+  // add ability to process "go to" as well as just "go"
+  if (action === "go" && input[1] === "to") {
+    action = "go to";
+    target = input.slice(2).join(" "); // the rest
+  }
+  // if action is not "go to", expect single word for command
+  else {
+    target = input.slice(1).join(" "); // the rest
+  }
+
+  return { action, target };
+};
+
+/** ======================== GAME SETUP ========================== */
+
+// create player with allowable actions, and cart
+let player = {
+  // set player's current location
+  name: "Bob",
+  currentLocation: "main entrance",
+  // allowed actions
+  // possible future extension: forward, back, left, right
+  actions: ["go", "go to", "take", "return", "pay", "leave", "look"],
+  cart: [],
+  hasReceipt: false,
+};
+
+// create random 5 item list from our inventory
+let shoppingList = createShoppingList(produceInventory, 5);
+
 // TODO add items
-// items - these will simply be shopping list, cart (could extend to cash register)
-// TODO - what items will be untakable?
+// items - these will simply be shopping list, cart, cash register
+
 class Item {
   constructor(
     name,
@@ -24,52 +90,9 @@ class Item {
 //  create items (use locations descriptions & pictures)
 //  decide on properties of the items -- takeable and such
 
-/**
- * Helper method to create a random shopping list from inventory
- * @param {Array} inventory
- * @param {Number} listLength
- * @returns shopping list of requested length
- */
-let createShoppingList = (inventory, listLength) =>
-  _.take(_.shuffle(inventory), listLength);
+// - take(cart) -> contents, take(shopping list) -> contents, take(cash) -> Nope! No can do
 
-// create random 5 item list from our inventory
-let shoppingList = createShoppingList(produceInventory, 5);
-// console.log(shoppingList) -> five random items to shop for.
-
-// create player with allowable actions, and cart
-let player = {
-  // set player's current location
-  name: "Bob",
-  currentLocation: "main entrance",
-  // allowed actions
-  // possible future extension: forward, back, left, right
-  actions: ["go", "go to", "take", "return", "pay", "leave", "look"],
-  cart: [],
-  hasReceipt: false,
-};
-
-// ================== HELPER METHODS & GAME FUNCTIONALITY =================
-
-const processUserInput = (input) => {
-  let action = "",
-    target = ""; // init variables
-
-  // TODO replace this logic with user input lookupTable
-  action = input[0]; // first word
-  // add ability to process "go to" as well as just "go"
-  if (action === "go" && input[1] === "to") {
-    action = "go to";
-    target = input.slice(2).join(" "); // the rest
-  }
-  // if action is not "go to", expect single word for command
-  else {
-    target = input.slice(1).join(" "); // the rest
-  }
-
-  return { action, target };
-};
-
+/** ======================== GAME LOGIC ========================== */
 /**
  * start()
  * =======
@@ -84,7 +107,7 @@ async function start() {
   let inputArray = answer.trim().toLowerCase().split(" ");
 
   // extract desired action and object of the action from input
-  let { action, target } = processUserInput(inputArray);
+  let { action, target } = preprocessUserInput(inputArray);
 
   // execute user's wishes
   // if action isn't known, let user know
@@ -188,12 +211,12 @@ async function start() {
     }
   }
 
-  start();
+  await start();
 }
 
-// ======================= STARTING THE GAME ==============================
+// ======================= START THE GAME ==============================
 
-// Set up game -- describe current location for the user
+// To start the game, describe current location for the user
 console.log(locationLookUpTable[player.currentLocation].getDescription());
 
 // let the games begin!
