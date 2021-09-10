@@ -67,7 +67,7 @@ let backProduce = new Location(
   ["front produce", "right produce", "left produce"],
   [
     "avodaoes",
-    " potatoes",
+    "potatoes",
     "big juicy tomatoes",
     "peppers",
     "onions",
