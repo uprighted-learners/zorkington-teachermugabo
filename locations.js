@@ -41,11 +41,12 @@ let mainEntrace = new Location(
   your shopping list on the hiring stand. You are currently at the main entrance.
   In front of you are the doors to Hannafords.  Next up is the carts room.
   You'll need one. If you need help along the way, remember to just look around.`,
-  ["carts room"]
+  ["carts room"],
+  ["main entrance doors"]
 );
 let cartRoom = new Location(
   "carts room",
-  `See the large carts on your right and small carts to your left.
+  `See the big carts on your right and small carts to your left.
   We're also hiring! Baskets are by the front produce`,
   ["front produce"],
   ["big cart", "small cart", "shopping list"]
@@ -192,10 +193,32 @@ const isValidNextLocation = (current, next) =>
 const getOfficialLocationName = (target) =>
   isValidLocation(target) ? friendlyLocationNamesMappingTable[target] : null;
 
+/**
+ * getLocationDescription -- given name of location, returns description.
+ *
+ * @param {String} location
+ * @returns {String}
+ */
 const getLocationDescription = (location) =>
   locationInstancesLookUpTable[location].lookAround();
 
+/**
+ * getLocation - given name of location, returns the location object.
+ *
+ * @param {String} location
+ * @returns {Location}
+ */
 const getLocation = (location) => locationInstancesLookUpTable[location];
+
+/**
+ * isItemHere -- given location and an item, this method searches
+ * in the location's inventory and returns a boolean.
+ *
+ * @param {String} location
+ * @param {String} item
+ * @returns {Boolean}
+ */
+const isItemHere = (location, item) => getLocation(location).has(item);
 
 module.exports = {
   produceInventory,
@@ -204,4 +227,5 @@ module.exports = {
   getOfficialLocationName,
   getLocationDescription,
   getLocation,
+  isItemHere,
 };
