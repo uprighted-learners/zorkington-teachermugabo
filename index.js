@@ -1,9 +1,15 @@
-/** FILE ORGANIZATION
+/**
+ * FILE ORGANIZATION
  *  0) IMPORTS
  *  1) HELPER METHODS
  *  2) GAME SETUP
  *  3) GAME LOGIC
  *  4) EXECUTION (calls game logic)
+ *
+ * PROJECT STORIES
+ * > Introductory text @ launch [done]
+ * > Deal with 'unknown commands' [done]
+ * >
  */
 
 const _ = require("underscore");
@@ -14,8 +20,9 @@ const {
   isValidNextLocation,
   getOfficialLocationName,
   getLocationDescription,
-  getLocation,
+  isItemHere,
 } = require("./locations");
+const player = require("./player");
 
 /** ======================== HELPER METHODS ========================== */
 
@@ -81,15 +88,24 @@ const lookAround = (location) => {
 class Item {
   constructor(name, description = "", contents = [], takeable = false) {
     this.name = name;
+    this.description = description;
     this.contents = contents;
     this.takeable = takeable;
   }
 }
 
+// main entrance doors
+let doors = new Item(
+  "main entrance doors",
+  "Welcome to hannafords! These are our doors. Please leave them where they are.",
+  [],
+  false
+);
+
 // this will be the cart the user takes & uses to shop
 let smallCart = new Item(
   "small cart",
-  "This is your shopping cart - good side for what we need",
+  "This is your shopping cart - good side for what you need",
   [],
   true
 );
@@ -103,7 +119,7 @@ let bigCart = new Item(
 // shopping list with user's items to buy before they can leave :-)
 let shoppingList = new Item(
   "shopping list",
-  "This is your shopping list - chop! chop!",
+  "This is your shopping list.",
   // creates random 5 item list from our product inventory
   createShoppingList(produceInventory, 5),
   true
@@ -112,16 +128,21 @@ let shoppingList = new Item(
 // cash register at checkout -- there's money here
 let cashRegister = new Item(
   "cash register",
-  "Storage for Hannaford's $$$$",
+  "Storage for Hannaford's $$$$. It's not for you.",
   [1, 1, 5, 5, 5, 5, 50, 50, 100, 100, 500, 500, 2000],
   false
 );
 
-// Items lookup table
+// Items lookup table - populated with ALL items in the environment
+// that users to interact with.
 const itemsLookupTable = {
+  doors: doors,
+  "main entrance doors": doors,
+  "big doors": doors,
   "small cart": smallCart,
-  cart: smallCart,
+  "large cart": bigCart,
   "big cart": bigCart,
+  cart: smallCart,
   "shopping list": shoppingList,
   list: shoppingList,
   "cash register": cashRegister,
@@ -141,28 +162,16 @@ const getItem = (target) =>
 const getItemName = (target) =>
   isItem(target) ? itemsLookupTable[target].name : throwNotItemError();
 
+// ? For shopping list & cart, it would be really clutch to also add
+// ? their contents to their description. Though, we could implement
+// ? a 'getItemContents' method which returns: 'this is what we have: [contents]'
 const getItemDescription = (target) =>
   isItem(target) ? itemsLookupTable[target].description : throwNotItemError();
-
-const isItemAvailable = (location, item) => getLocation(location).has(item);
 
 const isItemTakeable = (target) =>
   isItem(target) ? itemsLookupTable[target].takeable : throwNotItemError();
 
 const isProduce = (target) => produceInventory.includes(target);
-
-// create player with allowable actions, and cart
-let player = {
-  // set player's current location
-  name: "Bob",
-  currentLocation: "main entrance",
-  // allowed actions
-  // * possible future extension: forward, back, left, right
-  actions: ["go", "go to", "take", "examine", "drop", "pay", "leave", "look"],
-  shoppingList: null,
-  cart: null,
-  hasReceipt: false,
-};
 
 /** ======================== GAME LOGIC ========================== */
 
@@ -224,8 +233,37 @@ const goTo = (target) => {
  * @param {String} target
  */
 const examine = (target) => {
-  // examine an item (non-produce) item
-  if (isItem(target)) console.log(getItemDescription(target));
+  // examine -- find handle (non-produce) items
+  if (isItem(target)) {
+    // cart - show contents
+    if (getItemName(target) === "small cart") {
+      // make sure they have one first
+      if (player.hasCart())
+        console.log(`Here's what you got in your cart`, player.cart.contents);
+      else console.log(`Hey, you'll need to get a ${target} first.`);
+    }
+    // shopping list -- show contentfs
+    else if (getItemName(target) == "shopping list") {
+      // make sure they have the list first
+      if (player.hasList())
+        console.log(
+          `Here's what you need to get: `,
+          player.shoppingList.contents
+        );
+      else console.log(`Hey, you'll need a ${target} first.`);
+    }
+    // for all other items
+    else {
+      // first make sure they're in the room & then provide item description
+      if (isItemHere(player.currentLocation, target))
+        console.log(getItemDescription(target));
+      else
+        console.log(
+          `Where are you seeing this ${target}? Not here! Clues, shopper, clues!`
+        );
+    }
+  }
+  // next - produce items - keeping it simple
   else if (isProduce(target))
     console.log(`That vegetable looks fine. Or is it a fruit? Who cares.`);
   else console.log(`Hmmm...not much there really. Keep it moving.`);
@@ -241,43 +279,37 @@ const take = (target) => {
   // is this a non-produce item in the game?
   if (isItem(target)) {
     // ! delete:
-    console.debug(`!Yes, ${target} is an item`);
+    // console.debug(`!Yes, ${target} is an item`);
 
     // special cases: carts and shopping list, once you have them, they travel
-    if (
-      getItemName(target) === "shopping list" &&
-      player.shoppingList != null
-    ) {
-      // show what's here
-      console.log(
-        `Here's what you need to get: `,
-        player.shoppingList.contents
-      );
+    // special case #1 -- if player already has already taken the shopping list,
+    // then "take shopping list" simply displays it ()
+    if (getItemName(target) === "shopping list" && player.hasList()) {
+      // show what's on the list
+      examine(target);
       return;
     }
 
     // special case: same as shopping list -- cart travels once gotten.
-    if (getItemName(target) === "small cart" && player.cart != null) {
+    if (getItemName(target) === "small cart" && player.hasCart()) {
       // show what's in the cart
-      console.log(`Here's what you got in your cart`, player.cart.contents);
+      examine(target);
       return;
     }
 
     //  make sure the item available in current location
-    if (!isItemAvailable(player.currentLocation, getItemName(target))) {
+    if (!isItemHere(player.currentLocation, getItemName(target))) {
       // !delete
-      console.debug(
-        `!Nope, there is no ${target} here at ${player.currentLocation}`
-      );
+      // console.debug(
+      //   `!Nope, there is no ${target} here at ${player.currentLocation}`
+      // );
       console.log(`Sorry shopper, ${target} isn't available here.`);
       return;
     }
     // make sure is is also 'takeable'
     if (!isItemTakeable(target)) {
-      console.debug(`!No, ${target} is not a takeable them`);
-      console.log(
-        `Hmm, unfortunately ${target} is not for sale. Go get yee some produce!`
-      );
+      // console.debug(`!No, ${target} is not a takeable them`);
+      console.log(getItemDescription(target));
       return;
     }
 
@@ -300,14 +332,14 @@ const take = (target) => {
   }
   // is it a produce item?
   else if (isProduce(target)) {
-    console.debug(`!Yes, ${target} is a produce item.`);
+    // console.debug(`!Yes, ${target} is a produce item.`);
     // check that we have a cart first - send them to get it if they dont.
     if (!player.cart) {
       console.log(`Nope. Gotta go get a cart first.`);
       return;
     }
     // make sure the item is present here - in current location
-    else if (!isItemAvailable(player.currentLocation, target)) {
+    else if (!isItemHere(player.currentLocation, target)) {
       console.log(
         `Not sure we have ${target} here. Don't be discouraged though. It's a big store!`
       );
@@ -326,7 +358,7 @@ const take = (target) => {
   }
   // nothing else is takeable
   else {
-    console.debug(`!No known item matched '${target}'`);
+    // console.debug(`!No known item matched '${target}'`);
     console.log(
       `Hmmm, look closer. Where do you see ${target} in this ${player.currentLocation}?`
     );
@@ -353,6 +385,8 @@ const drop = (item) => {
  * ? Is this where we set a flag to mark that they've gotten everything?
  */
 const pay = () => {
+  // make sure shopping list is fully checked off
+  player.shoppingList.forEach((item) => player.cart.contents.includes(item));
   console.log(
     `
       Thanks for the cashless exchange! You're all set.
@@ -391,9 +425,10 @@ async function start() {
     // user attempts to move to neighboring location
     else if (action === "go to") goTo(target);
     // user examines an object
-    else if (action == "examine") examine(target);
+    else if (action === "examine") examine(target);
     // user takes an item
-    else if (action == "take") take(target);
+    else if (action === "take") take(target);
+    else if (action === "get") take(target);
     // user drops an item from their inventory (i.e. cart)
     else if (action === "drop") drop(target);
     // user wants to pay!
