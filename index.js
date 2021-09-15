@@ -23,6 +23,7 @@ const {
 
 const {
   isItem,
+  isProduce,
   getItem,
   getItemName,
   getItemDescription,
@@ -115,7 +116,7 @@ const goTo = (target) => {
 
       // let user know where they are -- they just changed locations
       console.log(
-        `Good guess! You left ${player.currentLocation} and are now in ${target}`
+        `You've left ${player.currentLocation} and are now in ${target}`
       );
 
       // set current location to the new place
@@ -148,7 +149,7 @@ const examine = (target) => {
     if (getItemName(target) === "small cart") {
       // make sure they have one first
       if (player.hasCart())
-        console.log(`Here's what you got in your cart`, player.cart.contents);
+        console.log(`Here's what you got in your cart:`, player.cart.contents);
       else console.log(`Hey, you'll need to get a ${target} first.`);
     }
     // shopping list -- show contentfs
@@ -187,31 +188,33 @@ const examine = (target) => {
 const take = (target) => {
   // is this a non-produce item in the game?
   if (isItem(target)) {
-    // ! delete:
-    // console.debug(`!Yes, ${target} is an item`);
-
-    // special cases: carts and shopping list, once you have them, they travel
-    // special case #1 -- if player already has already taken the shopping list,
-    // then "take shopping list" simply displays it ()
+    // ====================================================
+    // special cases: once carts and shopping list have been
+    // taken the first time, TAKE {cart | list } maps to the
+    // EXAMINE action.
+    // ====================================================
+    // special case #1 -- if player already has already taken
+    // the shopping list, then "take shopping list" simply displays it.
     if (getItemName(target) === "shopping list" && player.hasList()) {
-      // show what's on the list
       examine(target);
       return;
     }
 
-    // special case: same as shopping list -- cart travels once gotten.
+    // special case: same as shopping list -- TAKE cart
+    // translates to EXAMINE cart.
     if (getItemName(target) === "small cart" && player.hasCart()) {
       // show what's in the cart
       examine(target);
       return;
     }
 
-    //  make sure the item available in current location
+    // ====================================================
+    // This sections handles TAKE action for the rest of the
+    // items in the game. Including the initial acquisition of
+    // the special items, cart and shopping list.
+
+    //  first, make sure the item available in current location
     if (!isItemHere(player.currentLocation, getItemName(target))) {
-      // !delete
-      // console.debug(
-      //   `!Nope, there is no ${target} here at ${player.currentLocation}`
-      // );
       console.log(`Sorry shopper, ${target} isn't available here.`);
       return;
     }
@@ -326,8 +329,6 @@ async function start() {
   }
   // if action is known, let user know as well & try to accomodate their request
   else {
-    console.log(`Ah, so you want want to ${action} ${target}.`);
-
     // =============== CORE GAME LOGIC =================
     // user looks around (from current location)
     if (action === "look") lookAround(player.currentLocation);

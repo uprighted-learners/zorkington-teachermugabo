@@ -23,7 +23,7 @@ let player = {
     return this.shoppingList != null;
   },
   hasCart: function () {
-    this.cart != null;
+    return this.cart != null;
   },
 };
 
