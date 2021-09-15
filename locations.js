@@ -36,7 +36,7 @@ class Location {
 // create locations with mapped allowable transitions
 let mainEntrace = new Location(
   "main entrance",
-  `Hello Shopper! In case you've forgotten, you've been hired as a shopper
+  `  Hello Shopper! In case you've forgotten, you've been hired as a shopper
   for our dear dear customers at Hannafords. In the carts room, you'll find the
   your shopping list on the hiring stand. You are currently at the main entrance.
   In front of you are the doors to Hannafords.  Next up is the carts room.
@@ -46,14 +46,16 @@ let mainEntrace = new Location(
 );
 let cartRoom = new Location(
   "carts room",
-  `See the big carts on your right and small carts to your left.
-  We're also hiring! Baskets are by the front produce`,
+  `  See the big carts on your right and small carts to your left.
+  Next to our table with new hire forms, you'll find your shopping list.
+  Once you have what you need, go on to the front produce area and
+  start shopping.`,
   ["front produce"],
   ["big cart", "small cart", "shopping list"]
 );
 let frontProduce = new Location(
   "front produce",
-  `You're inside the store. Yay! In front of you are some local tomatoes,
+  `  You're inside the store. Yay! In front of you are some local tomatoes,
   and local strawberries. Yum! To your right are some green stuff you
   can't quite make out. And to your right is a smorgasbord of fruit.
   This was damn place is a smorgasbord!`,
@@ -62,10 +64,11 @@ let frontProduce = new Location(
 );
 let backProduce = new Location(
   "back produce",
-  `You're in the back produce -- looking at heaps of single avocadoes, and potatoes.
+  `  You're in the back produce -- looking at heaps of single avocadoes, and potatoes.
   There's also big juicy tomatoes, and peppers. There are also bags of onions and
-  avocadoes as well.`,
-  ["front produce", "right produce", "left produce"],
+  avocadoes as well. Once you are done, from here you can access the front
+  area, as well as the right side of the produce section.`,
+  ["front produce", "right produce"],
   [
     "avodaoes",
     "potatoes",
@@ -77,14 +80,15 @@ let backProduce = new Location(
   ]
 );
 
-// TODO add description
 let leftProduce = new Location(
   "left produce",
-  `You're in the left produce -- tons of fruit!
+  `  You're in the left produce -- tons of fruit!
   The usual suspects are here including some funky ones.
   Yes, hidden behind the passion fruit, are the mangoes and plums.
-  There are also a bunch of different berries! Take your pick!`,
-  ["checkout", "back produce", "front produce"],
+  There are also a bunch of different berries! Take your pick!
+
+  And if you have everything, the checkout is around the corner.`,
+  ["checkout", "front produce"],
   [
     "passion fruit",
     "mangoes",
@@ -95,18 +99,25 @@ let leftProduce = new Location(
   ]
 );
 
-// TODO add description
 let rightProduce = new Location(
   "right produce",
-  `You're in the right produce -- we have bell peppers and corn here.`,
+  `  You're in the right produce are -- we have bell peppers and corn here.
+  From here, you can see some some avos and potatoes in the back, along
+  with other cooking must-haves. There may be more things, worth checking
+  it out. Of course you can always go back where you were. I hope you find
+  all that you are looking for...`,
   ["back produce", "front produce"],
   ["corn", "green bell peppers", "yellow bell peppers", "red bell peppers"]
 );
 
-// TODO add description
 let checkout = new Location(
   "checkout",
-  `So you're ready to check out. Got everything on your list?`,
+  `  So you're ready to check out. You have arrived at the register.
+  Got everything on your list? If you do, then go ahead and pay. We
+  have the customer's account and credit card info on file. If you
+  don't have everything, then I'm afraid you'll be stuck in
+  this store until you find all the things. Of course you can always quit if
+  you don't need this job.`,
   ["left produce"],
   ["receipt", "cash register"]
 );
