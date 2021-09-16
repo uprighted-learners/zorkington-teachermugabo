@@ -19,6 +19,39 @@ class Item {
     this.contents = contents;
     this.takeable = takeable;
   }
+
+  // class predicate - lets us if this item containts an object.
+  // e.g. if a cart contains 'tomatoes'.
+  has(target) {
+    return this.contents && this.contents.includes(target);
+  }
+
+  // add object to Item (e.g. add produce to our cart item)
+  add(target) {
+    this.contents.push(target);
+  }
+
+  // remove object from Item
+  removeFromContents(target) {
+    // nothing to remove, return false.
+    if (!this.has(target)) return false;
+
+    // if target object exists, remove it from
+    // item's contents.
+    let index = this.contents.indexOf(target);
+    if (index !== 1) {
+      let dropped = this.contents.splice(index, 1);
+      console.debug(`Dropping ${dropped} from ${this.name}`);
+      return true;
+    }
+    // handle implementation error - item.has should match results
+    // of searching the item's contents.
+    else {
+      throw `Cart.has(target)  is contradicted by Cart.contents.indexOf(target):
+        > Cart.contents.indeOf(target): ${this.contents.indexOf(target)}
+        > Cart.has(target): ${this.has(target)}`;
+    }
+  }
 }
 
 // main entrance doors
