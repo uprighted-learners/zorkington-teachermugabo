@@ -7,9 +7,9 @@
  *  4) EXECUTION (calls game logic)
  *
  * PROJECT STORIES
- * > Introductory text @ launch [done]
- * > Deal with 'unknown commands' [done]
- * >
+ * Introductory text @ launch [done]
+ * Deal with 'unknown commands' [done]
+ *
  */
 
 const ask = require("./scripts/ask"); // util to prompt & collect user input
@@ -56,8 +56,17 @@ const preprocessUserInput = (rawInput) => {
   // grab action (first work)
   action = inputArray[0];
 
+  // add inventory shortcut
+  if (action === "i") {
+    action = "take";
+    target = "inventory";
+  }
+  // allow user to quit
+  else if (action === "q") {
+    action = "quit";
+  }
   // add ability to process "go to"
-  if (action === "go" && inputArray[1] === "to") {
+  else if (action === "go" && inputArray[1] === "to") {
     action = "go to";
     target = inputArray.slice(2).join(" "); // the rest
   }
@@ -260,7 +269,7 @@ const take = (target) => {
     // Yay! now add produce to cart
     else {
       console.log(`Good call! ${target} now in your cart.`);
-      player.cart.contents.push(target);
+      player.cart.add(target);
     }
   }
   // is the user simply taking inventory?
@@ -280,13 +289,43 @@ const take = (target) => {
 /**
  * drop - game logic method - allow user to drop an item.
  *
- * @param {String} item
+ * @param {String} target
  */
-const drop = (item) => {
-  // TODO implement drop(target)
-  console.log(
-    `Shopper, you're playing the basic version. I'm afraid you're stuck with ${item}.`
-  );
+const drop = (target) => {
+  try {
+    // if cart or shopping list, remove them from player
+    if (
+      isItem(target) &&
+      getItemName(target) === "shopping list" &&
+      player.hasList()
+    ) {
+      delete player.shoppingList;
+      console.log(`Dropping your ${target}...`);
+    }
+    // drop shopping cart
+    else if (
+      isItem(target) &&
+      getItemName(target) === "small cart" &&
+      player.hasCart()
+    ) {
+      delete player.cart;
+      console.log(`Dropping your ${target}...`);
+    }
+    // handle dropping produce item out of shopping cart
+    else if (isProduce(target) & player.cart.has(target)) {
+      let result = player.cart.removeFromContents(target);
+
+      // debug
+      if (result === false) console.log(`Strange, not finding ${target}...`);
+    }
+    // handle a non-item case
+    else {
+      console.log(`Can't drop what you don't have, Shopper. Keep it moving.`);
+    }
+  } catch (err) {
+    console.log(`Our systems is having issues. Couldn't do what you asked.`);
+    console.log(`Call helpdesk with this error: ${err}.`);
+  }
 };
 
 /**
@@ -298,11 +337,12 @@ const drop = (item) => {
  */
 const pay = () => {
   // make sure shopping list is fully checked off
-  player.shoppingList.forEach((item) => player.cart.contents.includes(item));
   console.log(
     `
       Thanks for the cashless exchange! You're all set.
-      You can leave now. You remember where you came from, don't you?`
+      Looks like you found all items on your shopping list.
+      You can leave now. You'll need to trace your way back to
+      the main entrance. You remember how you got here, don't you?`
   );
 };
 
@@ -314,7 +354,7 @@ const pay = () => {
  */
 async function start() {
   // prompt user
-  let answer = await ask("\n\nWhat to do next? >_");
+  let answer = await ask("\n\nWhat to do next? (q to quit)>_");
 
   // extract desired action and object of the action from input
   let { action, target } = preprocessUserInput(answer);
@@ -343,19 +383,29 @@ async function start() {
     else if (action === "drop") drop(target);
     // user wants to pay!
     else if (action === "pay") pay();
+    else if (action === "quit") {
+      console.log(
+        `So you're just gonna quit? Just like that? Too bad. Better luck next time. `
+      );
+      process.exit(0);
+    }
     // user wants to exit - say thanks & bye
     else if (action === "leave") {
-      // if user hasn't actually finished the game, give them hard time on way out
-      if (!player.hasReceipt) {
+      // can only leave from main entrance
+      if (player.currentLocation != "main entrance") {
         console.log(
-          `So you're just gonna quit? Just like that? Too bad. Better luck next time. `
+          `You're gonna have to first make your way to the main entrance. Go back to where you entered.`
         );
+      }
+      // this receipt is the ticket -- player gets it at checkout when they pay
+      else if (!player.hasReceipt) {
+        console.log(`You'll need a receipt to leave. Did you pay at checkout?`);
+      }
+      // looks like player has arrived!
+      else {
+        console.log("Thank you for all you do! Bye for now <3");
         process.exit(0);
       }
-
-      // otherwise, thanks player!
-      console.log("Thank you for all you do! Bye for now <3");
-      process.exit(0);
     }
   }
 

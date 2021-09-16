@@ -134,7 +134,7 @@ const isProduce = (target) => produceInventory.includes(target);
  * at runtime. Ensures we're only calling our 'Items' methods
  * on objects of Item.
  */
-const throwNotItemError = () => {
+const throwNotItemError = (target) => {
   throw `${target} is not an instance of class Item`;
 };
 
@@ -147,7 +147,7 @@ const throwNotItemError = () => {
  * @returns
  */
 const getItem = (target) =>
-  isItem(target) ? itemsLookupTable[target] : throwNotItemError();
+  isItem(target) ? itemsLookupTable[target] : throwNotItemError(target);
 
 /**
  * getItemName - Item class helper method -- abstracts our
@@ -161,7 +161,7 @@ const getItem = (target) =>
  * @returns
  */
 const getItemName = (target) =>
-  isItem(target) ? itemsLookupTable[target].name : throwNotItemError();
+  isItem(target) ? itemsLookupTable[target].name : throwNotItemError(target);
 
 /**
  * getItemDescription - Item class helper method -- abstracts our
@@ -174,7 +174,9 @@ const getItemName = (target) =>
  * @returns
  */
 const getItemDescription = (target) =>
-  isItem(target) ? itemsLookupTable[target].description : throwNotItemError();
+  isItem(target)
+    ? itemsLookupTable[target].description
+    : throwNotItemError(target);
 
 /**
  * getItemTakeable - Item class helper method -- abstracts our
@@ -188,7 +190,9 @@ const getItemDescription = (target) =>
  * @returns
  */
 const isItemTakeable = (target) =>
-  isItem(target) ? itemsLookupTable[target].takeable : throwNotItemError();
+  isItem(target)
+    ? itemsLookupTable[target].takeable
+    : throwNotItemError(target);
 
 module.exports = {
   isItem,

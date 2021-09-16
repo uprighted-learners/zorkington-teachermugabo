@@ -14,6 +14,7 @@ let player = {
     "drop",
     "pay",
     "leave",
+    "quit",
     "look",
   ],
   shoppingList: null,
