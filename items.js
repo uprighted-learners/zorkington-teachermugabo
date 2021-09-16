@@ -79,23 +79,81 @@ const itemsLookupTable = {
 // ===============   Items Interace Methods    ==================
 // -- these are helper methods to work with items of the game ---
 
+/**
+ * isItem - predicate to answer q: is this a game item?
+ *
+ * @param {String} target
+ * @returns {Boolean}
+ */
 const isItem = (target) => Object.keys(itemsLookupTable).includes(target);
+
+/**
+ * isProduce - predicate to answer q: is this a produce item in
+ * one of the produce sections?
+ *
+ * @param {*} target
+ * @returns
+ */
 const isProduce = (target) => produceInventory.includes(target);
 
+/**
+ * throwNotItemError - error to make the program more robust
+ * at runtime. Ensures we're only calling our 'Items' methods
+ * on objects of Item.
+ */
 const throwNotItemError = () => {
   throw `${target} is not an instance of class Item`;
 };
 
+/**
+ * getItem - Item class helper method -- abstracts our
+ * itemsLookupTable and makes it more forgiving by mapping
+ * multiple names to the same game item.
+ *
+ * @param {String} target
+ * @returns
+ */
 const getItem = (target) =>
   isItem(target) ? itemsLookupTable[target] : throwNotItemError();
 
+/**
+ * getItemName - Item class helper method -- abstracts our
+ * itemsLookupTable and makes it more forgiving by mapping
+ * multiple names to the same game item.
+ *
+ * This method returns the "offical name" of the item, mapping
+ * the possible different names to one.
+ *
+ * @param {String} target
+ * @returns
+ */
 const getItemName = (target) =>
   isItem(target) ? itemsLookupTable[target].name : throwNotItemError();
 
-// ? Implement getItemsContent so that cart and shopping list display theirs.
+/**
+ * getItemDescription - Item class helper method -- abstracts our
+ * itemsLookupTable and makes it more forgiving by mapping
+ * multiple names to the same game item.
+ *
+ * This method returns the item's game description.
+ *
+ * @param {String} target
+ * @returns
+ */
 const getItemDescription = (target) =>
   isItem(target) ? itemsLookupTable[target].description : throwNotItemError();
 
+/**
+ * getItemTakeable - Item class helper method -- abstracts our
+ * itemsLookupTable and makes it more forgiving by mapping
+ * multiple names to the same game item.
+ *
+ * This method is a predicate to verify if an item can be
+ * taken by the player.
+ *
+ * @param {String} target
+ * @returns
+ */
 const isItemTakeable = (target) =>
   isItem(target) ? itemsLookupTable[target].takeable : throwNotItemError();
 
