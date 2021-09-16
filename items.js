@@ -82,6 +82,7 @@ let shoppingList = new Item(
   "This is your shopping list.",
   // creates random 5 item list from our product inventory
   createShoppingList(produceInventory, 5),
+  // ["tomatoes", "plums"], // testing scenario
   true
 );
 

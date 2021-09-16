@@ -112,12 +112,7 @@ const goTo = (target) => {
   // check/handle if valid location - use friendly map to allow
   // for many names for the same location :-)
   if (isValidLocation(target)) {
-    // check/handle if allowed transition
-    // TODO story -- when leaving main entrance to cart room, main entrance locks!
-    //               can't leave w/o the shopping list fully checked off!
-    // TODO story -- when shopper returns to main entrance w/ everything, unlock it!
-
-    // check #2 - is this target a valid next location? Is it adjacent to current location?
+    // is this target a valid next location? Is it adjacent to current location?
     // valid location
     if (isValidNextLocation(player.currentLocation, target)) {
       // rename target to use our internal name for that location
@@ -336,14 +331,40 @@ const drop = (target) => {
  * ? Is this where we set a flag to mark that they've gotten everything?
  */
 const pay = () => {
-  // make sure shopping list is fully checked off
-  console.log(
-    `
-      Thanks for the cashless exchange! You're all set.
-      Looks like you found all items on your shopping list.
-      You can leave now. You'll need to trace your way back to
-      the main entrance. You remember how you got here, don't you?`
-  );
+  // player must be at checkout
+  if (player.currentLocation != "checkout") {
+    console.log(
+      `Gonna first have to make your way to checkout. Look around...`
+    );
+  }
+  // must have a cart and a shopping list
+  else if (!player.hasCart() || !player.hasList()) {
+    console.log(`You're not ready...`);
+  }
+  // alright, let's see if the player is actually done
+  else {
+    // make sure shopping list is fully checked off
+    let missingItems = player.shoppingList.contents.filter(
+      (item) => !player.cart.has(item)
+    );
+    if (missingItems.length != 0) {
+      console.log(`Looks like you still missing: ${missingItems}`);
+    }
+    // success!
+    else {
+      // this is the player's ticket out!
+      player.hasReceipt = true;
+
+      // thank player
+      console.log(
+        `
+          Thanks for the cashless exchange! You're all set.
+          Looks like you found all items on your shopping list.
+          You can leave now. You'll need to trace your way back to
+          the main entrance. You remember how you got here, don't you?`
+      );
+    }
+  }
 };
 
 /**
@@ -394,7 +415,7 @@ async function start() {
       // can only leave from main entrance
       if (player.currentLocation != "main entrance") {
         console.log(
-          `You're gonna have to first make your way to the main entrance. Go back to where you entered.`
+          `You're gonna have to first make your way to the main entrance. Hint: follow the way you came.`
         );
       }
       // this receipt is the ticket -- player gets it at checkout when they pay
