@@ -50,7 +50,7 @@ let cartRoom = new Location(
   Next to our table with new hire forms, you'll find your shopping list.
   Once you have what you need, go on to the front produce area and
   start shopping.`,
-  ["front produce"],
+  ["front produce", "main entrance"],
   ["big cart", "small cart", "shopping list"]
 );
 let frontProduce = new Location(
