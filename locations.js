@@ -36,7 +36,9 @@ class Location {
 // create locations with mapped allowable transitions
 let mainEntrace = new Location(
   "main entrance",
-  `  Hello Shopper! In case you've forgotten, you've been hired as a shopper
+  `
+
+  Hello Shopper! In case you've forgotten, you've been hired as a shopper
   for our dear dear customers at Hannafords. In the carts room, you'll find the
   your shopping list on the hiring stand. You are currently at the main entrance.
   In front of you are the doors to Hannafords.  Next up is the carts room.
