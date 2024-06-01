@@ -1,4 +1,3 @@
-// template for locations
 class Location {
   constructor(
     name,
@@ -14,12 +13,10 @@ class Location {
     this.locked = locked;
   }
 
-  // returns description of location - convenience function
   lookAround() {
     return this.getDescription();
   }
 
-  // returns description of location
   getDescription() {
     return this.description;
   }
@@ -33,8 +30,7 @@ class Location {
   }
 }
 
-// create locations with mapped allowable transitions
-let mainEntrace = new Location(
+const mainEntrace = new Location(
   "main entrance",
   `
 
@@ -46,7 +42,7 @@ let mainEntrace = new Location(
   ["carts room"],
   ["main entrance doors"]
 );
-let cartRoom = new Location(
+const cartRoom = new Location(
   "carts room",
   `  See the big carts on your right and small carts to your left.
   Next to our table with new hire forms, you'll find your shopping list.
@@ -55,7 +51,7 @@ let cartRoom = new Location(
   ["front produce", "main entrance"],
   ["big cart", "small cart", "shopping list"]
 );
-let frontProduce = new Location(
+const frontProduce = new Location(
   "front produce",
   `  You're inside the store. Yay! In front of you are some local tomatoes,
   and local strawberries. Yum! To your right are some green stuff you
@@ -64,7 +60,7 @@ let frontProduce = new Location(
   ["carts room", "back produce", "left produce", "right produce"],
   ["strawberries", "tomatoes"]
 );
-let backProduce = new Location(
+const backProduce = new Location(
   "back produce",
   `  You're in the back produce -- looking at heaps of single avocadoes, and potatoes.
   There's also big juicy tomatoes, and peppers. There are also bags of onions and
@@ -82,7 +78,7 @@ let backProduce = new Location(
   ]
 );
 
-let leftProduce = new Location(
+const leftProduce = new Location(
   "left produce",
   `  You're in the left produce -- tons of fruit!
   The usual suspects are here including some funky ones.
@@ -101,7 +97,7 @@ let leftProduce = new Location(
   ]
 );
 
-let rightProduce = new Location(
+const rightProduce = new Location(
   "right produce",
   `  You're in the right produce are -- we have bell peppers and corn here.
   From here, you can see some some avos and potatoes in the back, along
@@ -112,7 +108,7 @@ let rightProduce = new Location(
   ["corn", "green bell peppers", "yellow bell peppers", "red bell peppers"]
 );
 
-let checkout = new Location(
+const checkout = new Location(
   "checkout",
   `  So you're ready to check out. You have arrived at the register.
   Got everything on your list? If you do, then go ahead and pay. We
@@ -124,7 +120,8 @@ let checkout = new Location(
   ["receipt", "cash register"]
 );
 
-// locations & location instance lookupTable
+// TODO: I suppose we can skip the friendly and directly map
+// names to their objects
 const locationInstancesLookUpTable = {
   "main entrance": mainEntrace,
   "carts room": cartRoom,
@@ -133,105 +130,50 @@ const locationInstancesLookUpTable = {
   "left produce": leftProduce,
   "right produce": rightProduce,
   checkout: checkout,
-
-  // * potential improvement - add "forgiving" location names
-  // e.g. carts and cartroom for "carts room", front for "front product", etc...
-  // ISSUE (are for refactoring):
-  // Currently, adding locations here isn't enough, I need
-  // to update locations in each Location class instance as well.
-  // seems like a bad/poor pattern!
 };
 
 const friendlyLocationNamesMappingTable = {
-  // main entrance names
+  // checkpoints
   "main entrance": "main entrance",
   entrance: "main entrance",
-  // carts room names
+  checkout: "checkout",
+  // carts
   "carts room": "carts room",
   "cart room": "carts room",
   cartroom: "carts room",
   carts: "carts room",
   cart: "carts room",
-  // front produce names
+  // produce
   "front produce": "front produce",
   front: "front produce",
-  // back produce names
   "back produce": "back produce",
   back: "back produce",
-  // left produce names
   "left produce": "left produce",
   left: "left produce",
-  // right produce names
   "right produce": "right produce",
   right: "right produce",
-  // checkout names (default will do)
-  checkout: "checkout",
 };
 
-// create inventory by aggregating all locations' inventories
 const produceInventory = frontProduce.inventory
   .concat(backProduce.inventory)
   .concat(leftProduce.inventory)
   .concat(rightProduce.inventory);
 
-// ==================== LOCATION HELPER METHODS ==============
-
-/**
- * isValidLocation - helper predicate to verify that a target location
- * is in fact a valid location in our game.
- *
- * @param {String} location
- * @returns {Boolean} true/false
- */
 const isValidLocation = (location) =>
   Object.keys(friendlyLocationNamesMappingTable).includes(location);
 
-/**
- * isValidNextLocation - helper predicate to verify that a given target
- * location is a valid NEXT location from the CURRENT location.
- *
- * @param {String} location
- * @returns {Boolean} true/false
- */
 const isValidNextLocation = (current, next) =>
   locationInstancesLookUpTable[current].canGo(next);
 
-/**
- * getOfficialLocationName - helper method to return the internal
- * location name.
- *
- * @param {String} target
- * @returns {String | null} official location, if it exists (null otherwise)
- */
 const getOfficialLocationName = (target) =>
   isValidLocation(target) ? friendlyLocationNamesMappingTable[target] : null;
 
-/**
- * getLocationDescription -- given name of location, returns description.
- *
- * @param {String} location
- * @returns {String}
- */
 const getLocationDescription = (location) =>
   locationInstancesLookUpTable[location].lookAround();
 
-/**
- * getLocation - given name of location, returns the location object.
- *
- * @param {String} location
- * @returns {Location}
- */
-const getLocation = (location) => locationInstancesLookUpTable[location];
+const getLocationInfo = (location) => locationInstancesLookUpTable[location];
 
-/**
- * isItemHere -- given location and an item, this method searches
- * in the location's inventory and returns a boolean.
- *
- * @param {String} location
- * @param {String} item
- * @returns {Boolean}
- */
-const isItemHere = (location, item) => getLocation(location).has(item);
+const isItemHere = (location, item) => getLocationInfo(location).has(item);
 
 module.exports = {
   produceInventory,
@@ -239,6 +181,6 @@ module.exports = {
   isValidNextLocation,
   getOfficialLocationName,
   getLocationDescription,
-  getLocation,
+  getLocation: getLocationInfo,
   isItemHere,
 };
