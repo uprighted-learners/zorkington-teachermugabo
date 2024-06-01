@@ -1,7 +1,7 @@
 const _ = require("underscore");
 const { produceInventory } = require("./locations");
 
-let createRandomShoppingList = (inventory, listLength) =>
+const createRandomShoppingList = (inventory, listLength) =>
   _.take(_.shuffle(inventory), listLength);
 
 class Item {
@@ -17,43 +17,43 @@ class Item {
   }
 
   remove(target) {
-    let index = this.contents.indexOf(target);
+    const index = this.contents.indexOf(target);
     if (index === -1) {
       return false;
     }
 
-    let dropped = this.contents.splice(index, 1);
+    const dropped = this.contents.splice(index, 1);
     console.debug(`Dropping ${dropped} from ${this.name}`);
     return true;
   }
 }
 
-let mainEntranceDoors = new Item(
+const mainEntranceDoors = new Item(
   "main entrance doors",
   "Welcome to hannafords! These are our doors. Please leave them where they are.",
   [],
   false
 );
-let smallCart = new Item(
+const smallCart = new Item(
   "small cart",
   "This is your shopping cart - good side for what you need",
   [],
   true
 );
-let bigCart = new Item(
+const bigCart = new Item(
   "big cart",
   "This is a jumbo shopping cart. Seems to be tied & locked with the rest.",
   [],
   false
 );
-let shoppingList = new Item(
+const shoppingList = new Item(
   "shopping list",
   "This is your shopping list.",
   createRandomShoppingList(produceInventory, 5),
   true
 );
 
-let cashRegister = new Item(
+const cashRegister = new Item(
   "cash register",
   "Storage for Hannaford's $$$$. It's not for you.",
   [1, 1, 5, 5, 5, 5, 50, 50, 100, 100, 500, 500, 2000],
